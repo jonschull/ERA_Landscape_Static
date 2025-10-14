@@ -20,16 +20,23 @@ A **standalone HTML file** that:
 
 ## Quick Start
 
-### View Locally
+### View Locally (with Google Sheets API)
+
+**Important:** Google Sheets API requires HTTP/HTTPS protocol. Use a local server:
 
 ```bash
 # Clone the repo
 git clone https://github.com/jonschull/ERA_Landscape_Static.git
 cd ERA_Landscape_Static
 
-# Open in browser (no server needed!)
-open index.html
+# Start local server
+python3 -m http.server 8000
+
+# Open in browser
+open http://localhost:8000
 ```
+
+**Note:** Opening `index.html` directly (file:// protocol) will display the graph with embedded data, but Google Sheets API features (Refresh, Save) won't work. Use HTTP server or GitHub Pages for full functionality.
 
 ### Deploy to GitHub Pages
 
