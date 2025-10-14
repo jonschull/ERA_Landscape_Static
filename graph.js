@@ -706,35 +706,22 @@
     }
 
     async function doSave(){
-      if (pendingOps.length===0 && !lastAction){ showToast('Nothing to save'); return; }
-      // Ensure current type radio selections are included as update_node ops for From/To labels if applicable
-      function ensureTypeOpFor(inputEl, radios){
-        const label = (inputEl.value||'').trim(); if(!label) return;
-        const all = nodes.get(); const n = all.find(nn=>String(nn.label).trim()===label);
-        if (!n) return;
-        const val = (radios.find(r=>r.checked)?.value)||'organization';
-        const desired = (val==='person')?'person':(val==='project'?'project':'organization');
-        const has = pendingOps.some(op=>op.type==='update_node' && op.id===n.id);
-        if (!has){ pendingOps.push({ type:'update_node', id:n.id, node_type: desired }); }
-      }
-      ensureTypeOpFor(qeFrom, fromTypeRadios);
-      ensureTypeOpFor(qeTo, toTypeRadios);
-      const payload = pendingOps.length>0 ? { ops: pendingOps } : { action: lastAction.type, from: lastAction.edge.from, to: lastAction.edge.to, relationship: lastAction.edge.label, create_if_missing: true };
-      try{ console.debug('QE saving payload', payload); }catch{}
+      // In static mode, save entire graph to Sheets
       try{
-        console.log('[doSave] Sending request...');
-        const resp = await fetch('/api/edit', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-        console.log('[doSave] Response received, status:', resp.status);
-        if(!resp.ok) throw new Error('HTTP '+resp.status);
-        const result = await resp.json();
-        console.log('[doSave] JSON parsed:', result);
-        console.log('[doSave] Save successful, clearing pendingOps. Length before:', pendingOps.length);
-        showToast('Edit saved');
-        lastAction = null;
-        pendingOps.length = 0;  // Clear array without breaking reference
-        console.log('[doSave] pendingOps cleared. Length after:', pendingOps.length);
-        hasUnsaved = false; updateUnsaved();
-      }catch(e){ console.error('[doSave] ERROR:', e); alert('Save edit failed: ' + e.message); }
+        console.log('[doSave] Saving to Google Sheets...');
+        if (typeof saveDataToSheets === 'function') {
+          await saveDataToSheets();
+          lastAction = null;
+          pendingOps.length = 0;  // Clear array without breaking reference
+          hasUnsaved = false; 
+          updateUnsaved();
+        } else {
+          showToast('⚠️ Sheets API not initialized');
+        }
+      }catch(e){ 
+        console.error('[doSave] ERROR:', e); 
+        showToast('Save failed: ' + e.message); 
+      }
     }
 
     function doUndo(){
@@ -1000,50 +987,13 @@
       refreshBtn.textContent = '↻ Refreshing...';
       
       try {
-        const response = await fetch('/api/data');
-        const result = await response.json();
-        
-        if (!result.ok) {
-          showToast('Refresh failed: ' + (result.error || 'Unknown error'));
-          return;
+        // Call Sheets API function (defined in index.html)
+        if (typeof loadDataFromSheets === 'function') {
+          await loadDataFromSheets();
+          updateCounts();
+        } else {
+          showToast('⚠️ Sheets API not initialized');
         }
-        
-        // Transform data to vis.js format
-        const transformedNodes = result.nodes.map(n => ({
-          id: n.id,
-          label: n.label || n.id.split('::')[1] || n.id,
-          group: n.type || 'organization',
-          shape: n.type === 'person' ? 'dot' : (n.type === 'project' ? 'triangle' : 'box'),
-          color: n.type === 'person' ? '#5DA5DA' : (n.type === 'project' ? '#FAA43A' : '#B276B2'),
-          title: n.label || n.id.split('::')[1] || n.id,  // Just show label on hover
-          url: n.url || '',
-          notes: n.notes || '',
-          origin: n.origin || '',
-          hidden: n.hidden === 'true' || n.hidden === true,
-          member: n.member || ''
-        }));
-        
-        const transformedEdges = result.edges.map(e => ({
-          id: `${e.source}--${e.target}--${e.relationship || 'partnership'}`,
-          from: e.source,
-          to: e.target,
-          label: e.relationship || 'partnership',
-          title: e.relationship || 'partnership',  // Just show relationship on hover
-          relationship: e.relationship || 'partnership',
-          role: e.role || '',
-          url: e.url || '',
-          notes: e.notes || ''
-        }));
-        
-        // Update graph in place (preserves layout!)
-        nodes.clear();
-        nodes.add(transformedNodes);
-        edges.clear();
-        edges.add(transformedEdges);
-        
-        updateCounts();
-        showToast(`Refreshed: ${transformedNodes.length} nodes, ${transformedEdges.length} edges`);
-        
       } catch (err) {
         console.error('Refresh error:', err);
         showToast('Refresh failed: ' + err.message);
