@@ -125,6 +125,119 @@ If you find yourself in a reactive loop:
 
 ---
 
+## COMMAND OUTPUT DISCIPLINE
+
+**CRITICAL RULE:** After EVERY command, READ and SUMMARIZE the output.
+
+### The Problem
+
+You can issue commands without reading their output. This leads to:
+- Untracked files you don't notice
+- Modified files you forget about
+- Test failures you miss
+- Broken state you don't detect
+
+**Example failure:** Running `git status` 3 times, seeing "Untracked files: NEXT_STEPS.md" each time, but not noticing until user asks.
+
+### The Fix
+
+**After EVERY command, explicitly:**
+1. Read the output
+2. Check for unexpected results
+3. Report what you found
+4. Act on problems immediately
+
+### Example: Good Workflow
+
+```bash
+$ git status
+On branch main
+Untracked files:
+  NEXT_STEPS.md
+nothing added to commit but untracked files present
+```
+
+**AI Response:**
+"⚠️ `git status` shows NEXT_STEPS.md is untracked. Should I commit it?"
+
+### Example: Bad Workflow
+
+```bash
+$ git status
+[output ignored]
+```
+
+**AI Response:**
+"✅ Everything committed" (WRONG - didn't read output)
+
+---
+
+## MANDATORY VERIFICATION CHECKLIST
+
+**Before claiming work is "done" or "complete":**
+
+### 1. Git Status Check
+```bash
+git status
+```
+
+**Check for:**
+- ✅ "nothing to commit, working tree clean" OR
+- ⚠️ Explain any untracked/modified files and why they're not committed
+
+### 2. File Existence Check
+```bash
+ls -la  # or ls relevant-directory/
+```
+
+**Check for:**
+- ✅ All expected files present
+- ⚠️ Any missing files?
+
+### 3. Git History Check
+```bash
+git log --oneline -5
+```
+
+**Check for:**
+- ✅ All expected commits present
+- ✅ Latest commit has correct message
+- ⚠️ Any uncommitted work?
+
+### 4. Browser Test Check
+```bash
+open index.html  # or provide file path
+```
+
+**Check for:**
+- ✅ Page loads without errors
+- ✅ Console clean (or explain warnings)
+- ✅ Feature works as expected
+
+### 5. Test Suite Check
+```bash
+cd tests && python test_load.py
+```
+
+**Check for:**
+- ✅ Tests pass
+- ⚠️ Document any failures
+
+### After Every File Creation
+
+**When you create files:**
+1. Create file → `write_to_file` tool
+2. Verify exists → `ls -la [directory]`
+3. Check git sees it → `git status`
+4. Stage it → `git add [file]`
+5. Verify staged → `git status` (should show "Changes to be committed")
+6. Commit → `git commit -m "..."`
+7. Verify committed → `git log --oneline -1`
+
+**DO NOT skip steps 2, 3, 5, 7.** Always verify.
+
+---
+
 ## Critical Files
 
 ### Core Files

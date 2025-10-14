@@ -46,6 +46,29 @@ Red flags:
 - ❌ NEVER make multiple fixes in rapid succession without testing
 - ❌ Making 3+ attempts means stop and reassess
 
+COMMAND OUTPUT DISCIPLINE:
+After EVERY command, READ and VERIFY the output:
+- [ ] git status → Check for untracked/modified files
+- [ ] ls -la → Verify files exist
+- [ ] git log → Verify commits present
+- [ ] Browser test → Check console for errors
+- [ ] Test output → Read failures/warnings
+
+NEVER ignore command output. NEVER assume success without verification.
+
+Example failure: Running `git status` 3 times, seeing untracked files, but not
+noticing until user asks. This is unacceptable.
+
+VERIFICATION CHECKLIST (Before Claiming "Done"):
+Run this every time:
+1. git status → "working tree clean" OR explain uncommitted files
+2. ls -la → All expected files present
+3. git log --oneline -5 → All commits present
+4. open index.html → Browser test (check console)
+5. cd tests && python test_load.py → Test passes
+
+DO NOT claim work is complete until all 5 checks pass.
+
 GIT/GITHUB WORKFLOW:
 - Protected main branch (use PRs only)
 - One feature = one branch = one PR
