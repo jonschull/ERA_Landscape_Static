@@ -167,11 +167,19 @@
     
     gapi.load('client', async () => {
       try {
+        console.log('📡 Calling gapi.client.init()...');
         await gapi.client.init({
           apiKey: API_KEY,
           discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
         });
         console.log('✅ Google Sheets API client initialized (API key mode)');
+        
+        // Verify sheets API is available
+        if (!gapi.client.sheets) {
+          console.error('❌ gapi.client.sheets not available after init');
+          showToast('⚠️ Sheets API requires HTTP/HTTPS (not file://)');
+          return;
+        }
         
         tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,

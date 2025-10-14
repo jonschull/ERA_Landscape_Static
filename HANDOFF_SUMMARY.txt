@@ -59,15 +59,32 @@ NEVER ignore command output. NEVER assume success without verification.
 Example failure: Running `git status` 3 times, seeing untracked files, but not
 noticing until user asks. This is unacceptable.
 
-VERIFICATION CHECKLIST (Before Claiming "Done"):
-Run this every time:
-1. git status → "working tree clean" OR explain uncommitted files
-2. ls -la → All expected files present
-3. git log --oneline -5 → All commits present
-4. open index.html → Browser test (check console)
-5. cd tests && python test_load.py → Test passes
+TESTING DISCIPLINE (Before Claiming "Done"):
 
-DO NOT claim work is complete until all 5 checks pass.
+CORE PRINCIPLE: Test behavior, not structure. Hunt for problems, not confirmations.
+
+1. Test in target environment (HTTP server, not file:// if deploying to web)
+2. Execute actual user workflow (click buttons, check outcomes)
+3. Hunt for problems:
+   - Check console for ALL errors/warnings
+   - Look for missing expected success messages
+   - Check if async operations complete
+4. Verify user-visible outcomes:
+   - Does data actually change after "Refresh"?
+   - Does button state update after action?
+   - Does screen show expected result?
+5. Git hygiene:
+   - git status → clean OR explain uncommitted
+   - git log → verify commits present
+
+ANTI-PATTERNS TO AVOID:
+❌ "Function exists" → Claimed success (didn't test if it WORKS)
+❌ Checked library loaded → Ignored that API initialization failed
+❌ Saw warning in console → Dismissed it (warning revealed the problem!)
+❌ Tested file:// → Should have tested HTTP (where it will actually run)
+
+THE RULE: Don't claim it works until you've seen it work in the conditions 
+where it needs to work. Not "the code is there" but "I used it and it worked."
 
 GIT/GITHUB WORKFLOW:
 - Protected main branch (use PRs only)
