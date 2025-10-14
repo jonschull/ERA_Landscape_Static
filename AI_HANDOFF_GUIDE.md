@@ -1,6 +1,20 @@
 # AI Assistant Handoff Guide
 **For AI assistants picking up ERA_Landscape_Static**
 
+**PURPOSE OF THIS FILE:**
+- Testing methodology & principles
+- Git workflow & discipline  
+- Code patterns & architecture
+- Command output verification
+- Anti-patterns to avoid
+
+**For project state, see HANDOFF_SUMMARY.txt:**
+- What's done vs not done
+- File inventory  
+- Current git status
+- Next steps roadmap
+- Testing commands
+
 ---
 
 ## FIRST ACTIONS (Before Any User Interaction)
