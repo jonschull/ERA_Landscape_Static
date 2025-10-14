@@ -1,0 +1,331 @@
+ERA Landscape - Static Viewer - Handoff Package
+===============================================
+Date: October 13, 2025
+
+AI ASSISTANT: READ THIS FIRST
+------------------------------
+Before responding to the user, immediately read in this order:
+
+1. This file (HANDOFF_SUMMARY.txt) - Project overview
+2. AI_HANDOFF_GUIDE.md - Code patterns, testing, git workflow
+3. TESTING.md - Testing workflow and commands
+4. VISION.md - Long-term collaborative mapping goals
+5. NEXT_STEPS.md - Current roadmap and action items
+
+Then assess current state:
+- On which git branch? (`git branch --show-current`)
+- Does index.html open in browser without errors?
+- Last test run status? (run: cd tests && python test_load.py)
+- Current feature status? (check NEXT_STEPS.md and recent git log)
+
+Then present to user WITHOUT being asked:
+✅ Current git branch and status
+✅ Current feature status
+✅ Browser test result (errors or clean)
+✅ Testing baseline (passing/unknown/needs verification)
+✅ Ready to proceed or need clarification
+
+DO NOT wait for "where are we?" - orient yourself and report status proactively.
+
+CRITICAL DISCIPLINE CHECKLIST:
+Before ANY work session:
+- [ ] Read handoff docs BEFORE responding
+- [ ] Check git branch and status FIRST
+- [ ] Open index.html in browser (verify baseline)
+- [ ] Check console for errors
+- [ ] Present status proactively (don't wait to be asked)
+
+During work:
+- [ ] ONE change at a time (no reactive spirals)
+- [ ] Test in browser THEN report (never claim success without proof)
+- [ ] Test in Chrome AND Edge (both must work)
+- [ ] Update docs after major changes
+
+Red flags:
+- ❌ NEVER claim "fixed" or "done" without browser testing
+- ❌ NEVER make multiple fixes in rapid succession without testing
+- ❌ Making 3+ attempts means stop and reassess
+
+GIT/GITHUB WORKFLOW:
+- Protected main branch (use PRs only)
+- One feature = one branch = one PR
+- You handle all git commands (user doesn't need to learn git)
+- Every functional stable state is a PR
+- See AI_HANDOFF_GUIDE.md for complete workflow
+
+PROJECT OVERVIEW
+----------------
+
+What This Is:
+✅ Pure static HTML/JavaScript viewer for climate/restoration network graph
+✅ Loads data directly from Google Sheets (no server needed)
+✅ Deployable to GitHub Pages or any static host
+✅ OAuth for editing (sign in to save changes)
+✅ No Python, no backend, no Flask - just HTML + JS
+
+What This Is NOT:
+❌ Not a Python application (that's the parent project)
+❌ Not a backend server (that's ERA_ClimateWeek)
+❌ Not a build/compile process (edit HTML directly)
+
+Relationship to ERA_ClimateWeek:
+- Parent project: https://github.com/jonschull/ERA_ClimateWeek
+- Parent handles: Data processing, CSV imports, Sheet writes
+- This project: Pure viewer, reads from same Sheet
+- Workflow: ClimateWeek processes data → writes to Sheet → Static viewer displays
+
+CURRENT STATE (October 13, 2025)
+---------------------------------
+
+Files:
+✅ index.html - Main HTML file (~1500 lines, extracted from parent project)
+✅ graph.js - JavaScript logic (~600 lines)
+✅ README.md - Project overview
+✅ DEVELOPMENT.md - Developer guide
+✅ AI_HANDOFF_GUIDE.md - For AI assistants (this is essential!)
+✅ TESTING.md - Testing workflow
+✅ VISION.md - Long-term goals
+✅ NEXT_STEPS.md - Roadmap
+✅ tests/test_load.py - Playwright test
+✅ .gitignore - Git ignore rules
+
+Git Status:
+✅ Repository initialized
+✅ Initial commit made
+✅ On branch: main
+❌ Not pushed to GitHub yet
+❌ No remote configured yet
+
+Testing Status:
+✅ test_load.py passes (HTML loads, structure intact)
+⚠️ No data loads yet (needs external script fix + API integration)
+⚠️ Not tested in Edge yet
+
+Current Features (from parent project):
+✅ Interactive graph visualization (vis-network)
+✅ 352 nodes, 220 edges (embedded in HTML currently)
+✅ Quick Editor (add/remove connections)
+✅ Node modals (click node to edit)
+✅ Edge modals (click edge to edit/delete)
+✅ Search filtering
+✅ Hide/show nodes
+✅ Custom relationships
+
+What's Missing (needs to be added):
+❌ Google Sheets API integration (read/write)
+❌ OAuth sign-in flow
+❌ External script loading (graph.js currently referenced but not loading)
+❌ Refresh button functionality
+❌ Save button functionality
+❌ GitHub repository created
+❌ GitHub Pages deployment
+
+ARCHITECTURE
+------------
+
+Current (with embedded data):
+  User opens index.html (file:// or http://)
+    ↓
+  HTML loads with embedded data (352 nodes, 220 edges)
+    ↓
+  vis-network renders graph
+    ↓
+  User interacts (but can't save - no backend)
+
+Target (serverless):
+  User opens index.html (file:// or https://github.io)
+    ↓
+  Browser loads Google Sheets API libraries
+    ↓
+  Fetches data from Google Sheet (API key for read)
+    ↓
+  vis-network renders graph
+    ↓
+  User clicks "Sign In" (optional)
+    ↓
+  OAuth flow → authenticated
+    ↓
+  User can save edits back to Sheet
+
+No server. No backend. Pure client-side.
+
+IMMEDIATE NEXT STEPS (see NEXT_STEPS.md)
+-----------------------------------------
+
+Step 1: Fix External Script Loading
+  Issue: graph.js isn't loading from file:// protocol
+  Fix: Inline JavaScript into index.html (one file = simpler)
+  Test: Open index.html, check console for errors
+  Commit: When working
+
+Step 2: Add Google Sheets API Integration
+  Add: gapi library loading
+  Add: initSheetsApi() function
+  Add: loadDataFromSheets() function
+  Add: saveDataToSheets() function
+  Add: Sign In button
+  Test: Browser test + Playwright test
+  Commit: When API initializes without errors
+
+Step 3: Test Locally
+  Test: Data loads from Sheets
+  Test: Sign In button works
+  Test: OAuth flow completes
+  Test: Save writes back to Sheet
+  Verify: In Chrome AND Edge
+
+Step 4: Create GitHub Repository
+  Create: jonschull/ERA_Landscape_Static
+  Push: Initial working version
+  Configure: GitHub Pages enabled
+
+Step 5: Deploy to GitHub Pages
+  URL: https://jonschull.github.io/ERA_Landscape_Static/
+  Test: Live deployment works
+  Verify: All features work on GitHub Pages
+
+TESTING PROTOCOL
+----------------
+
+For EVERY change:
+
+1. Manual browser test (FIRST)
+   open index.html
+   Check console (Cmd+Option+J)
+   Test the feature
+   Verify no errors
+
+2. Playwright test (SECOND)
+   cd tests && python test_load.py
+
+3. Browser compatibility (BEFORE PR)
+   Test in Chrome
+   Test in Edge
+   Both must work
+
+4. Ask user to verify (THIRD)
+   Provide evidence (test output, screenshot)
+   Give specific steps to verify
+   Wait for confirmation
+
+NEVER claim success without steps 1-2 completed.
+NEVER create PR without step 3 completed.
+
+DEVELOPMENT CULTURE
+-------------------
+
+From parent project (ERA_ClimateWeek), preserved here:
+
+1. Test before claiming success
+   - Open in browser first
+   - Check console
+   - Run Playwright test
+   - THEN report to user
+
+2. Small, incremental changes
+   - One feature at a time
+   - Commit when working
+   - PR when stable
+
+3. Never say "should work"
+   - Always say "tested, works"
+   - Provide evidence
+   - Screenshots help
+
+4. Respect user's time
+   - Be concise
+   - Don't make user test before you test
+   - No premature victory declarations
+
+5. Document everything
+   - Update README for user-facing changes
+   - Update docs for workflow changes
+   - Keep this file current
+
+LONG-TERM VISION (see VISION.md)
+---------------------------------
+
+Goal: Collaborative network mapping utility
+
+Users can:
+- View shared network graph (public data)
+- Add their own data to shared database
+- Maintain personal views (hide/show preferences)
+- Discover connections added by others
+- Use personal Sheets that complement global Sheet
+
+This creates:
+- Movement-wide utility
+- Collective intelligence
+- Organic network growth
+- Individual customization
+
+Technical evolution:
+- Phase 1: Static viewer (current - this project)
+- Phase 2: OAuth editing (sign in to save)
+- Phase 3: Personal Sheets (user-specific data)
+- Phase 4: Multi-user coordination (discovery)
+- Phase 5: Real-time collaboration (optional)
+
+See VISION.md for full details.
+
+CONTACT & RESOURCES
+-------------------
+
+Original Project: https://github.com/jonschull/ERA_ClimateWeek
+This Project: https://github.com/jonschull/ERA_Landscape_Static (to be created)
+Developer: Jon Schull
+AI Assistant: Claude (Anthropic) via Windsurf Cascade
+
+Google Sheet: 
+  ID: 1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY
+  Link: https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit
+
+API Credentials (embedded in index.html):
+  API Key: AIzaSyBp23GwrTURmM3Z1ERZocotnu3Tn96TmUo
+  OAuth Client ID: 57881875374-flipnf45tc25cq7emcr9qhvq7unk16n5.apps.googleusercontent.com
+
+HOW TO HAND OFF
+---------------
+
+For AI Assistant:
+1. Read this file FIRST (you're doing it!)
+2. Read AI_HANDOFF_GUIDE.md (essential patterns)
+3. Read TESTING.md (how to test)
+4. Read VISION.md (understand the goal)
+5. Check NEXT_STEPS.md (what to do now)
+6. Assess current state (git, browser test)
+7. Present status to user proactively
+
+For Human Developer:
+1. Read README.md (project overview)
+2. Read DEVELOPMENT.md (how to edit)
+3. Open index.html in browser
+4. Read VISION.md (long-term goals)
+5. Read NEXT_STEPS.md (current work)
+
+For User/Tester:
+1. Open index.html in browser
+2. Explore the graph
+3. Try clicking nodes, edges
+4. Test search filtering
+5. Report any issues
+
+READY TO START
+--------------
+
+If you're an AI assistant:
+- You've read this file ✅
+- Read AI_HANDOFF_GUIDE.md next ✅
+- Then assess current state ✅
+- Present status to user ✅
+- Ask what to work on next ✅
+
+If you're a human:
+- Read README.md for overview
+- Open index.html to see it work
+- Read DEVELOPMENT.md to edit
+- Check NEXT_STEPS.md for roadmap
+
+Status: Ready for development
+Updated: October 13, 2025
