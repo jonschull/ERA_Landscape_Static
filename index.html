@@ -157,6 +157,30 @@
   let accessToken = null;
   let pendingSaveAfterAuth = false;
   
+  /**
+   * Get visual properties (color, shape) for a node type
+   * @param {string} type - Node type: 'person', 'project', or 'organization'
+   * @returns {Object} {color: {background, border}, shape}
+   */
+  function getNodeVisuals(type) {
+    if (type === 'person') {
+      return {
+        color: {background: '#6aa7ff', border: '#2f79ff'},
+        shape: 'dot'
+      };
+    } else if (type === 'project') {
+      return {
+        color: {background: '#ce93d8', border: '#ba68c8'},
+        shape: 'triangle'
+      };
+    } else {
+      return {
+        color: {background: '#a8dadc', border: '#457b9d'},
+        shape: 'box'
+      };
+    }
+  }
+  
   // Initialize Google Sheets API
   function initSheetsApi() {
     if (!SHEET_ID || !API_KEY || !CLIENT_ID) {
@@ -328,12 +352,16 @@
       
       const nodesPayload = nodesData.map(n => {
         const type = n.type || 'organization';
-        const node = {
+        const visuals = getNodeVisuals(type);
+        
+        return {
           id: n.id,
           label: n.label,
           title: n.label,
           group: type,
           type: type,
+          shape: visuals.shape,
+          color: visuals.color,
           url: n.url || '',
           notes: n.notes || '',
           member: n.member || '',
@@ -342,20 +370,6 @@
           created_at: n.created_at || '',
           updated_at: n.updated_at || ''
         };
-        
-        // Apply colors and shapes based on type (match embedded data format)
-        if (type === 'person') {
-          node.shape = 'dot';
-          node.color = {background: '#6aa7ff', border: '#2f79ff'};
-        } else if (type === 'project') {
-          node.shape = 'triangle';
-          node.color = {background: '#ce93d8', border: '#ba68c8'};
-        } else {
-          node.shape = 'box';
-          node.color = {background: '#a8dadc', border: '#457b9d'};
-        }
-        
-        return node;
       });
       
       const edgesPayload = edgesData.map(e => ({
