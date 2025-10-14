@@ -31,11 +31,12 @@ Create a **movement-wide utility** for collaborative network mapping where:
 
 ### Use Case 2: Personal Data
 
-- User C has private contacts not ready to share publicly
-- User C maintains a **personal sheet** with their private network
-- User C's viewer loads: **global sheet + personal sheet**
-- User C sees combined view (public + private data)
-- When ready, User C can move entries from personal → global
+- User C wants to maintain their own subset of the network
+- User C creates a **personal sheet** for their own data curation
+- User C's viewer can show: **global only**, **personal only**, or **merged view**
+- Personal data is **public by default** (automatically merges into global)
+- If User C wants something private, they mark it with **Private = true** attribute
+- User C can choose to work with just their personal view (exclude global noise)
 
 ### Use Case 3: Collective Intelligence
 
@@ -90,9 +91,9 @@ Create a **movement-wide utility** for collaborative network mapping where:
 
 **Features:**
 - Each user has their own personal Google Sheet
-- Viewer loads: global + personal (merged view)
-- Personal data private by default
-- Can promote personal → global when ready
+- Personal data is **public by default** (auto-merges into global view)
+- Users can mark specific entries as "private" (opt-out from merge)
+- View options: Global only, Personal only, or Merged (toggle)
 
 **Technical:**
 ```javascript
@@ -100,20 +101,29 @@ Create a **movement-wide utility** for collaborative network mapping where:
 const globalData = await loadSheet(GLOBAL_SHEET_ID);
 const personalData = await loadSheet(USER_SHEET_ID);
 
-// Merge for display
-const mergedNodes = [...globalData.nodes, ...personalData.nodes];
-const mergedEdges = [...globalData.edges, ...personalData.edges];
+// Filter personal data: exclude entries marked private
+const publicPersonalNodes = personalData.nodes.filter(n => !n.private);
 
-// Render combined graph
-renderGraph(mergedNodes, mergedEdges);
+// Merge for display (personal public data goes into everyone's view)
+const mergedNodes = [...globalData.nodes, ...publicPersonalNodes];
+const mergedEdges = [...globalData.edges, ...personalData.edges.filter(e => !e.private)];
+
+// View options (user can toggle)
+// - "Global only": renderGraph(globalData.nodes, globalData.edges)
+// - "Personal only": renderGraph(personalData.nodes, personalData.edges)
+// - "Merged" (default): renderGraph(mergedNodes, mergedEdges)
 ```
 
 **User Experience:**
-1. User opens viewer
-2. Sees global network (public data)
-3. Signs in → also loads their personal sheet
-4. Sees combined view (public + private)
-5. Can tag personal entries: "keep private" or "promote to global"
+1. User opens viewer (default: global data)
+2. Signs in → also loads their personal sheet
+3. View options:
+   - "Show: Global + Personal" (merged - default)
+   - "Show: Personal only" (just my data)
+   - "Show: Global only" (everyone else's data)
+4. Adding data to personal sheet:
+   - By default: Public (auto-merges into global view for others)
+   - Can mark as "Private" (only I see it, never merges)
 
 **Timeline:** 1-2 months
 
@@ -181,10 +191,10 @@ Tab: edges
   source | target | relationship | role | url | notes | created_by | created_at | updated_at
 ```
 
-**Personal Sheet** (per user, private):
+**Personal Sheet** (per user, public by default):
 ```
 Same schema as global
-Plus: status column ('private' or 'promote_to_global')
+Plus: private column (boolean: false = public/merged, true = private/excluded)
 ```
 
 **Rate Limits:**
@@ -244,24 +254,29 @@ Plus: status column ('private' or 'promote_to_global')
 - Private notes
 - Draft/unconfirmed connections
 
-### Private Data (Personal Sheets)
+### Personal Data (Personal Sheets)
 
 **Access:**
-- View: Owner only
-- Edit: Owner only
-- Share: Optional (owner can share their personal sheet)
+- View: Owner can see their own + merged global view
+- Edit: Owner only (can edit their personal sheet)
+- Merge: By default, personal data merges into global (public)
 
-**What's private by default:**
-- Personal contacts (until promoted to global)
-- Private notes
-- Draft mappings
-- Sensitive relationships
+**What's in personal sheets:**
+- User's own data curation
+- Public by default (merged into everyone's global view)
+- Can mark individual entries as "private" to exclude from merge
+
+**What's private (opt-in):**
+- Entries marked with `private = true` attribute
+- Owner sees them, but they don't merge into global
+- Useful for: draft connections, sensitive relationships, personal notes
 
 ### User Control
 
 **Users can:**
-- Choose what to share (promote personal → global)
-- Mark entries as "private" (never promote)
+- Maintain their own personal sheet (their data, their curation)
+- View: Global only, Personal only, or Merged (toggle)
+- Mark specific entries as "private" (opt-out from merge)
 - Delete their own contributions
 - Export their data anytime
 
@@ -324,10 +339,11 @@ Plus: status column ('private' or 'promote_to_global')
 - Capture user ID from OAuth
 - Display in UI ("Added by User A")
 
-**3. Promotion Workflow**
-- UI for "promote to global"
-- Copy from personal sheet → global sheet
-- Handle duplicates gracefully
+**3. Merge & Privacy Controls**
+- Personal data merges automatically (public by default)
+- UI for marking entries as "private" (opt-out from merge)
+- Filter controls: View Global, Personal, or Merged
+- Handle duplicate detection across sheets
 
 ---
 
