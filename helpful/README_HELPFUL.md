@@ -1,6 +1,8 @@
 # /helpful - Reference Code from ERA_ClimateWeek
 
-This folder contains **working, tested code** extracted from ERA_ClimateWeek's `feat/serverless-read` branch.
+This folder contains **reference code** extracted from ERA_ClimateWeek's `feat/serverless-read` branch.
+
+**STATUS:** Code was written but NOT independently tested. It was part of a working branch but needs to be integrated into index.html and validated with `test_sheets_api.py` before claiming it works.
 
 ---
 
@@ -125,26 +127,37 @@ window.addEventListener('load', () => {
 
 ---
 
-## Testing
+## Testing (MUST DO AFTER INTEGRATION)
 
-### Browser Test
+**BEFORE you can test, you must integrate this code into index.html!**
+
+### Integration Test (Run This First)
+```bash
+cd tests
+python test_sheets_api.py
+```
+
+**Before integration (expected):**
+```
+❌ INTEGRATION NOT STARTED
+   Need to add code from /helpful folder
+```
+
+**After integration (goal):**
+```
+✅ ALL CHECKS PASSED
+   Google Sheets API integration is complete!
+   Successfully read 352 nodes from Sheet!
+```
+
+### Browser Test (Manual)
+After `test_sheets_api.py` passes:
 1. Open `index.html` in Chrome
 2. Open Console (Cmd+Option+J)
 3. Check for: `✅ Google Sheets API client initialized (API key mode)`
 4. Click "Sign In" → OAuth popup should appear
 5. After sign-in: `✅ Authenticated with Google Sheets`
-6. Buttons should now work
-
-### Playwright Test
-```bash
-cd tests
-python test_load.py
-```
-
-Should show:
-- Graph container found
-- No JavaScript errors
-- API initialized
+6. Test buttons (Refresh, Save)
 
 ---
 
@@ -167,16 +180,31 @@ Should show:
 
 ---
 
-## Source
+## Source & Status
 
-Extracted from: **ERA_ClimateWeek** `feat/serverless-read` branch  
-Files:
+**Extracted from:** ERA_ClimateWeek `feat/serverless-read` branch  
+**Source files:**
 - `templates/graph.html` (lines 30-118)
 - `static/graph.js` (lines 1-166)
 
-Working as of: October 13, 2025
+**Extracted:** October 13, 2025
+
+**Testing status:** 
+- ❌ NOT independently tested
+- ⏳ NEEDS integration into index.html
+- ⏳ NEEDS validation with test_sheets_api.py
+- ✅ THEN can claim "tested & working"
 
 ---
 
-**This code was tested and working before we pivoted to ERA_Landscape_Static.**  
-**Copy it, don't rewrite it!**
+## Important
+
+**DO NOT claim this code works until:**
+1. You integrate it into index.html (follow steps above)
+2. You run `cd tests && python test_sheets_api.py`
+3. Test shows: `✅ ALL CHECKS PASSED`
+4. You test manually in browser (Sign In, Refresh, Save)
+
+**Only THEN can you say "Google Sheets API integration is working."**
+
+**Copy this code, don't rewrite it. But TEST after copying!**
