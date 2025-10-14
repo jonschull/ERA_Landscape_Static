@@ -62,7 +62,7 @@ Create a **movement-wide utility** for collaborative network mapping where:
 
 **Status:** In progress (this project)
 
-**Timeline:** 1-2 weeks
+**Timeline:** 2-4 hours (immediate next work session)
 
 ---
 
@@ -81,7 +81,7 @@ Create a **movement-wide utility** for collaborative network mapping where:
 - Sheets API write permission
 - User permission checking
 
-**Timeline:** 1-2 weeks
+**Timeline:** 4-6 hours (once Phase 1 deployed)
 
 ---
 
