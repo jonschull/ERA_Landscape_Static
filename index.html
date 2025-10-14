@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ERA Graph</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 <style>
   html, body { height: 100%; margin: 0; padding: 0; }
   #network { width: 100%; height: 100vh; border: 0; }
@@ -325,18 +326,37 @@
       
       console.log(`✅ Loaded ${nodesData.length} nodes, ${edgesData.length} edges from Sheets`);
       
-      const nodesPayload = nodesData.map(n => ({
-        id: n.id,
-        label: n.label,
-        type: n.type || 'organization',
-        url: n.url || '',
-        notes: n.notes || '',
-        member: n.member || '',
-        origin: n.origin || '',
-        hidden: n.hidden === 'true' || n.hidden === true,
-        created_at: n.created_at || '',
-        updated_at: n.updated_at || ''
-      }));
+      const nodesPayload = nodesData.map(n => {
+        const type = n.type || 'organization';
+        const node = {
+          id: n.id,
+          label: n.label,
+          title: n.label,
+          group: type,
+          type: type,
+          url: n.url || '',
+          notes: n.notes || '',
+          member: n.member || '',
+          origin: n.origin || '',
+          hidden: n.hidden === 'true' || n.hidden === true,
+          created_at: n.created_at || '',
+          updated_at: n.updated_at || ''
+        };
+        
+        // Apply colors and shapes based on type (match embedded data format)
+        if (type === 'person') {
+          node.shape = 'dot';
+          node.color = {background: '#6aa7ff', border: '#2f79ff'};
+        } else if (type === 'project') {
+          node.shape = 'triangle';
+          node.color = {background: '#ce93d8', border: '#ba68c8'};
+        } else {
+          node.shape = 'box';
+          node.color = {background: '#a8dadc', border: '#457b9d'};
+        }
+        
+        return node;
+      });
       
       const edgesPayload = edgesData.map(e => ({
         from: e.source,
