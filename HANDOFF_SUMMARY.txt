@@ -27,54 +27,25 @@ Then present to user WITHOUT being asked:
 
 DO NOT wait for "where are we?" - orient yourself and report status proactively.
 
-CRITICAL DISCIPLINE CHECKLIST:
-Before ANY work session:
-- [ ] Read handoff docs BEFORE responding
-- [ ] Check git branch and status FIRST
-- [ ] Open index.html in browser (verify baseline)
-- [ ] Check console for errors
-- [ ] Present status proactively (don't wait to be asked)
+CRITICAL: SEE AI_HANDOFF_GUIDE.md FOR DETAILED WORKFLOW & TESTING PRINCIPLES
+-----------------------------------------------------------------------------
+This file = Project state snapshot (what's done, what's not, what's next)
+AI_HANDOFF_GUIDE.md = How to work (testing discipline, git workflow, principles)
 
-During work:
-- [ ] ONE change at a time (no reactive spirals)
-- [ ] Test in browser THEN report (never claim success without proof)
-- [ ] Test in Chrome AND Edge (both must work)
-- [ ] Update docs after major changes
+Quick checklist before starting work:
+- [ ] Read AI_HANDOFF_GUIDE.md for full testing & workflow principles
+- [ ] Check git branch and status
+- [ ] Verify current state matches what's documented below
+- [ ] Present status to user proactively
 
-Red flags:
-- ❌ NEVER claim "fixed" or "done" without browser testing
-- ❌ NEVER make multiple fixes in rapid succession without testing
-- ❌ Making 3+ attempts means stop and reassess
-
-COMMAND OUTPUT DISCIPLINE:
-After EVERY command, READ and VERIFY the output:
-- [ ] git status → Check for untracked/modified files
-- [ ] ls -la → Verify files exist
-- [ ] git log → Verify commits present
-- [ ] Browser test → Check console for errors
-- [ ] Test output → Read failures/warnings
-
-NEVER ignore command output. NEVER assume success without verification.
-
-Example failure: Running `git status` 3 times, seeing untracked files, but not
-noticing until user asks. This is unacceptable.
-
-VERIFICATION CHECKLIST (Before Claiming "Done"):
-Run this every time:
-1. git status → "working tree clean" OR explain uncommitted files
-2. ls -la → All expected files present
-3. git log --oneline -5 → All commits present
-4. open index.html → Browser test (check console)
-5. cd tests && python test_load.py → Test passes
-
-DO NOT claim work is complete until all 5 checks pass.
-
-GIT/GITHUB WORKFLOW:
-- Protected main branch (use PRs only)
-- One feature = one branch = one PR
-- You handle all git commands (user doesn't need to learn git)
-- Every functional stable state is a PR
-- See AI_HANDOFF_GUIDE.md for complete workflow
+During work - Core principle from AI_HANDOFF_GUIDE.md:
+  "Test behavior, not structure. Hunt for problems, not confirmations."
+  
+See AI_HANDOFF_GUIDE.md for:
+- Command output discipline
+- Verification checklist (7 steps)
+- Testing anti-patterns to avoid
+- Git/GitHub workflow details
 
 PROJECT OVERVIEW
 ----------------
@@ -207,63 +178,23 @@ Step 5: Deploy to GitHub Pages
   Test: Live deployment works
   Verify: All features work on GitHub Pages
 
-TESTING PROTOCOL
-----------------
+TESTING COMMANDS (See TESTING.md and AI_HANDOFF_GUIDE.md for methodology)
+--------------------------------------------------------------------------
 
-For EVERY change:
+Manual browser test:
+  open index.html
+  Check console (Cmd+Option+J)
 
-1. Manual browser test (FIRST)
-   open index.html
-   Check console (Cmd+Option+J)
-   Test the feature
-   Verify no errors
+Playwright test:
+  cd tests && python test_load.py
 
-2. Playwright test (SECOND)
-   cd tests && python test_load.py
+Full test suite:
+  cd tests && python run_regression_tests.py
 
-3. Browser compatibility (BEFORE PR)
-   Test in Chrome
-   Test in Edge
-   Both must work
-
-4. Ask user to verify (THIRD)
-   Provide evidence (test output, screenshot)
-   Give specific steps to verify
-   Wait for confirmation
-
-NEVER claim success without steps 1-2 completed.
-NEVER create PR without step 3 completed.
-
-DEVELOPMENT CULTURE
--------------------
-
-From parent project (ERA_ClimateWeek), preserved here:
-
-1. Test before claiming success
-   - Open in browser first
-   - Check console
-   - Run Playwright test
-   - THEN report to user
-
-2. Small, incremental changes
-   - One feature at a time
-   - Commit when working
-   - PR when stable
-
-3. Never say "should work"
-   - Always say "tested, works"
-   - Provide evidence
-   - Screenshots help
-
-4. Respect user's time
-   - Be concise
-   - Don't make user test before you test
-   - No premature victory declarations
-
-5. Document everything
-   - Update README for user-facing changes
-   - Update docs for workflow changes
-   - Keep this file current
+See AI_HANDOFF_GUIDE.md for:
+- When to test (before claiming done)
+- What to test (behavior, not structure)
+- How to test (user workflows, not code existence)
 
 LONG-TERM VISION (see VISION.md)
 ---------------------------------

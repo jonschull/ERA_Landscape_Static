@@ -1,6 +1,20 @@
 # AI Assistant Handoff Guide
 **For AI assistants picking up ERA_Landscape_Static**
 
+**PURPOSE OF THIS FILE:**
+- Testing methodology & principles
+- Git workflow & discipline  
+- Code patterns & architecture
+- Command output verification
+- Anti-patterns to avoid
+
+**For project state, see HANDOFF_SUMMARY.txt:**
+- What's done vs not done
+- File inventory  
+- Current git status
+- Next steps roadmap
+- Testing commands
+
 ---
 
 ## FIRST ACTIONS (Before Any User Interaction)
@@ -174,9 +188,110 @@ $ git status
 
 ## MANDATORY VERIFICATION CHECKLIST
 
+**CRITICAL PRINCIPLE: Test behavior, not structure. Hunt for problems, not confirmations.**
+
 **Before claiming work is "done" or "complete":**
 
-### 1. Git Status Check
+### 1. Test in the Target Environment
+
+**BAD:** Testing file:// when it needs HTTP/HTTPS  
+**GOOD:** Test in the actual deployment environment
+
+```bash
+# If deploying to GitHub Pages:
+python -m http.server 8000
+# Then test at http://localhost:8000
+```
+
+**Why:** Code that works in one environment may fail in another. API restrictions, CORS, protocol differences all matter.
+
+### 2. Execute the User Workflow (Don't Just Check Code Exists)
+
+**BAD:** "Does the function exist?" ✅  
+**GOOD:** "Does the function produce the expected result when called?"
+
+**Example:**
+```python
+# BAD test
+exists = page.evaluate("() => typeof loadDataFromSheets === 'function'")
+# Just checks code is defined
+
+# GOOD test  
+click_refresh_button()
+wait(3 seconds)
+data_changed = check_if_nodes_count_changed()
+console_shows_success = check_console_for("Loaded from Sheets")
+# Actually runs the workflow and checks outcome
+```
+
+### 3. Hunt for Problems (Pessimistic Testing)
+
+**Assume broken until proven working.**
+
+**Check console for ANY unexpected output:**
+```python
+# Get ALL console messages
+console_messages = page.get_console_messages()
+
+# Look for problems
+errors = [m for m in messages if m.type == 'error']
+warnings = [m for m in messages if m.type == 'warning']
+missing_expected = check_for_expected_messages([
+    "✅ API initialized",
+    "✅ Data loaded"
+])
+
+# Report EVERY problem found
+if errors or warnings or missing_expected:
+    print("❌ Found problems:")
+    for e in errors: print(f"  ERROR: {e}")
+    for w in warnings: print(f"  WARNING: {w}")
+```
+
+**Don't ignore warnings!** "Failed to execute postMessage" may seem minor but reveals the API won't work.
+
+### 4. Verify User-Visible Outcomes (Not Internal State)
+
+**What the USER sees/experiences matters, not what variables exist.**
+
+**Check the screen:**
+- Does the button actually DO something when clicked?
+- Does data change after "Refresh"?
+- Does the Sign In button change state after OAuth?
+- Does the graph update after "Save"?
+
+**Example:**
+```python
+# BAD: Checking internal state
+sheetsApiReady_exists = evaluate("typeof sheetsApiReady !== 'undefined'")  # True!
+
+# GOOD: Checking user outcome
+click_sign_in()
+button_text_after = get_button_text('#signInBtn')
+oauth_popup_opened = check_for_new_window()
+# Does user see what they should see?
+```
+
+### 5. Wait for Async Operations to Complete
+
+**If initialization is async, WAIT and verify completion.**
+
+```python
+# BAD
+page.goto(url)
+check_if_api_ready()  # Too early!
+
+# GOOD  
+page.goto(url)
+wait_for_console_message("✅ API initialized", timeout=5000)
+# OR
+wait(3 seconds)
+check_console_for_completion_or_errors()
+```
+
+**If you see "🔧 Initializing..." but never see "✅ Initialized", that's a FAILURE.**
+
+### 6. Git Status Check
 ```bash
 git status
 ```
@@ -185,16 +300,7 @@ git status
 - ✅ "nothing to commit, working tree clean" OR
 - ⚠️ Explain any untracked/modified files and why they're not committed
 
-### 2. File Existence Check
-```bash
-ls -la  # or ls relevant-directory/
-```
-
-**Check for:**
-- ✅ All expected files present
-- ⚠️ Any missing files?
-
-### 3. Git History Check
+### 7. Git History Check
 ```bash
 git log --oneline -5
 ```
@@ -204,24 +310,68 @@ git log --oneline -5
 - ✅ Latest commit has correct message
 - ⚠️ Any uncommitted work?
 
-### 4. Browser Test Check
-```bash
-open index.html  # or provide file path
+---
+
+## TESTING ANTI-PATTERNS (What NOT to Do)
+
+### ❌ Confirmation Hunting
+```python
+✅ Function exists
+✅ Button exists  
+✅ Library loaded
+→ "Integration complete!"  # WRONG - you didn't test if it WORKS
 ```
 
-**Check for:**
-- ✅ Page loads without errors
-- ✅ Console clean (or explain warnings)
-- ✅ Feature works as expected
-
-### 5. Test Suite Check
-```bash
-cd tests && python test_load.py
+### ❌ Testing Structure Instead of Behavior
+```python
+# Checks code is there, not that it runs
+typeof myFunction === 'function'  # ✅ exists
+myFunction()  # Did you check what happens?
 ```
 
-**Check for:**
-- ✅ Tests pass
-- ⚠️ Document any failures
+### ❌ Ignoring Console Warnings
+```
+[warning] Failed to execute postMessage...
+```
+"That's just a warning, ignore it" → WRONG! This reveals the API can't initialize.
+
+### ❌ Testing in Wrong Environment
+Testing file:// when it needs HTTP → You won't discover the actual problem.
+
+### ❌ Not Waiting for Async
+Checking API readiness immediately after calling async init() → False positive.
+
+---
+
+## TESTING BEST PRACTICES (What TO Do)
+
+### ✅ Problem-Focused Testing
+```
+1. Look for errors in console
+2. Look for missing expected messages  
+3. Try the actual user workflow
+4. Check if outcome matches expectation
+5. Only THEN claim it works
+```
+
+### ✅ User Outcome Verification
+"After clicking Refresh, does the graph data actually update?"  
+"After clicking Sign In, does OAuth popup appear?"  
+"After clicking Save, does console show save succeeded?"
+
+### ✅ Environment-Aware Testing
+"This requires HTTP, so I'll test with a local server."  
+"This needs OAuth, so I'll test the redirect flow."  
+"This writes to filesystem, so I'll verify the file was created."
+
+---
+
+## THE CORE PRINCIPLE
+
+**Don't claim it works until you've seen it work in the conditions where it needs to work.**
+
+Not: "The code is there" ✅  
+But: "I used it like a user would, and it produced the expected result" ✅
 
 ### After Every File Creation
 
