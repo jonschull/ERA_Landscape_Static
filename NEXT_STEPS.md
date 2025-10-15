@@ -1,17 +1,20 @@
 # Next Steps for ERA_Landscape_Static
 
-## What We Just Did
+## What We Just Completed
 
-✅ **Created new static project**
-- Extracted HTML from ERA_ClimateWeek
-- Pure HTML/JavaScript (no Python)
-- Simple structure (6 files)
-- Test passing
+✅ **Google Sheets API Integration** (PR #1 merged)
+- Added Google API libraries (gapi, OAuth2)
+- Implemented read/write functions
+- Wired Refresh/Save buttons
+- Added Sign In button for OAuth
+- Fixed colors to match legend
+- Created integration test (8/8 passing)
+- Documented HTTP/HTTPS requirement
 
-✅ **Reverted ERA_ClimateWeek to stable state**
-- Checked out `main` branch
-- Tests passing (3/3 core tests)
-- Server working on port 8002
+✅ **Testing & Documentation**
+- Rewrote testing guardrails (behavior not structure)
+- Separated HANDOFF_SUMMARY (state) vs AI_HANDOFF_GUIDE (methodology)
+- Added DRY helper functions (getNodeVisuals, parseTypeFromId)
 
 ---
 
@@ -45,58 +48,69 @@ ERA_Landscape_Static/
 
 ---
 
-## Immediate Next Steps
+## Immediate Next Step
 
-### 1. Fix External Script Loading
+### Remove Embedded Data & Auto-Load from Sheets
 
-**Issue**: `graph.js` isn't loading from `file://` protocol
+**Problem:**
+- Embedded data (~80KB) causes page load delay
+- Shows stale data instead of live Sheet
+- Color mismatch bug (embedded uses old colors)
+- File bloat (index.html thousands of lines)
+- Unnecessary duplication (data in Sheet AND HTML)
 
-**Fix Options:**
+**Why it's unnecessary:**
+- Already require HTTP/HTTPS (for Google API)
+- Already require network (for Sheets API)  
+- Can't work offline anyway
+- No benefit to embedding
 
-**A. Inline the JavaScript** (simplest)
-```html
-<!-- Instead of: -->
-<script src="/graph.js"></script>
+**Solution:**
 
-<!-- Do: -->
-<script>
-  // Paste graph.js contents here
-</script>
-```
-
-**B. Use relative path**
-```html
-<script src="./graph.js"></script>
-```
-
-**Recommendation**: Option A (inline) for simplicity. One file = easy deployment.
-
----
-
-### 2. Add Google Sheets API Integration
-
-**Current state**: HTML has embedded data (352 nodes from server generation)
-
-**Need to add**:
+1. **Remove embedded data**:
 ```javascript
-// In index.html <head>
-<script src="https://apis.google.com/js/api.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+// Currently:
+const nodes = new vis.DataSet([...80KB of JSON...]);
+const edges = new vis.DataSet([...34KB of JSON...]);
 
-// Configuration
-const SHEET_ID = '1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY';
-const API_KEY = 'AIzaSyBp23GwrTURmM3Z1ERZocotnu3Tn96TmUo';
-const CLIENT_ID = '57881875374-flipnf45tc25cq7emcr9qhvq7unk16n5.apps.googleusercontent.com';
-
-// Functions (from our previous work)
-- initSheetsApi()
-- loadDataFromSheets()
-- saveDataToSheets()
+// Change to:
+const nodes = new vis.DataSet([]);
+const edges = new vis.DataSet([]);
 ```
+
+2. **Auto-load on page init**:
+```javascript
+// After API initialization completes
+window.addEventListener('DOMContentLoaded', () => {
+  initSheetsApi().then(() => {
+    loadDataFromSheets(); // Fetch fresh data
+  });
+});
+```
+
+3. **Show loading state**:
+```javascript
+// Already have #loading div, just keep it visible until data loads
+function hideLoading() {
+  document.getElementById('loading').style.display = 'none';
+}
+// Call after loadDataFromSheets() completes
+```
+
+**Benefits:**
+- ✅ Smaller HTML file (~5KB vs ~85KB)
+- ✅ Faster page parse
+- ✅ Always fresh data
+- ✅ No color mismatch bugs
+- ✅ Single source of truth (Sheet)
+- ✅ Consistent behavior (same colors on load and refresh)
+
+**Trade-off:**
+- Network delay to load data (but we already have this for API init)
 
 ---
 
-### 3. Test Locally
+### Test Locally
 
 ```bash
 cd /Users/admin/Library/CloudStorage/Dropbox-EcoRestorationAllianceLLC/Jon\ Schull/CascadeProjects/ERA_Landscape_Static
@@ -213,11 +227,12 @@ Edit HTML directly → Browser → Sheets (direct)
 
 ## Success Criteria
 
-✅ **Phase 1**: File loads locally (DONE)  
-⏳ **Phase 2**: Graph displays with embedded data  
-⏳ **Phase 3**: Google Sheets API integration  
-⏳ **Phase 4**: Deployed to GitHub Pages  
-⏳ **Phase 5**: Sign-in and save working  
+✅ **Phase 1**: File loads locally  
+✅ **Phase 2**: Graph displays with embedded data  
+✅ **Phase 3**: Google Sheets API integration  
+✅ **Phase 4**: Deployed to GitHub Pages  
+⏳ **Phase 5**: Remove embedded data, auto-load from Sheets  
+⏳ **Phase 6**: Test OAuth sign-in and save working live  
 
 ---
 
