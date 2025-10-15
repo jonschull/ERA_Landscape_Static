@@ -2,9 +2,11 @@
 
 ## Overview
 
-This is a **static HTML project**. No build tools, no bundlers, no compilation.
+This is a **static HTML project** (20KB file, ~350+ nodes auto-loaded from Google Sheets). No build tools, no bundlers, no compilation.
 
-**Edit → Save → Refresh browser → Done**
+**Edit → Save → Test with HTTP server → Push to GitHub → Auto-deploys**
+
+**Critical:** Must use HTTP/HTTPS (not `file://`) - Google Sheets API requirement.
 
 ---
 
@@ -32,8 +34,14 @@ code index.html
 
 # Make changes to structure, styling, API config
 
-# Test locally
-open index.html
+# Test locally (MUST use HTTP server)
+python3 -m http.server 8000
+open http://localhost:8000
+
+# Check console for:
+# - "✅ Google Sheets API client initialized"
+# - "✅ Loaded XXX nodes, YYY edges from Sheets"
+# - "🎉 Initial data load complete"
 
 # Commit
 git add index.html
@@ -49,8 +57,10 @@ code graph.js
 
 # Make changes to logic, event handlers, API calls
 
-# Test locally (refresh browser)
-open index.html
+# Test locally (MUST use HTTP server)
+python3 -m http.server 8000
+open http://localhost:8000
+# Refresh browser to see changes
 
 # Commit
 git add graph.js
@@ -65,18 +75,33 @@ git push
 ### Manual Testing
 
 ```bash
-# Open in browser
-open index.html
+# Start HTTP server (REQUIRED)
+python3 -m http.server 8000
 
-# Check console for errors
-# (Right-click → Inspect → Console)
+# Open in browser
+open http://localhost:8000
+
+# Check console for success messages:
+# 1. "🔧 Initializing Google Sheets API..."
+# 2. "✅ Google Sheets API client initialized"
+# 3. "✅ Loaded XXX nodes, YYY edges from Sheets"
+# 4. "🎉 Initial data load complete"
+
+# Check graph:
+# - ~350+ nodes display
+# - Colors match legend (person=blue, org=teal, project=purple)
+# - Nodes are draggable
 
 # Test features:
-# - Graph loads
-# - Data fetches from Sheets
-# - Buttons work
-# - Sign In flow
-# - Save functionality
+# - Refresh button (re-loads from Sheet)
+# - Search/filter
+# - Hide/show nodes
+# - Sign In button (OAuth flow)
+# - Save functionality (after sign-in)
+
+# Check for errors:
+# (Right-click → Inspect → Console)
+# Should see NO red errors
 ```
 
 ### Automated Testing
@@ -86,15 +111,22 @@ open index.html
 pip install playwright
 playwright install
 
-# Run test
-cd tests
-python test_load.py
+# Run integration test
+python3.9 tests/test_sheets_integration.py
 
 # Expected output:
-# ✅ Page loads
-# ✅ Graph displays
-# ✅ Data loaded from Sheets
+# ✅ API initialization started
+# ✅ gapi.client.init() called
+# ✅ API initialization completed
+# ✅ gapi.client.sheets available
 # ✅ No JavaScript errors
+# ✅ Refresh button exists
+# ✅ Refresh loads data from Sheets
+# ✅ Sign In button exists
+# Passed: 8/8
+
+# Test live site
+python3.9 /tmp/test_live_site.py  # (if you have the script)
 ```
 
 ---
@@ -181,16 +213,29 @@ git commit -m "fix: Bug description"
 git push origin fix/bug-description
 ```
 
-### Deploy Changes
+### Deploy Changes to GitHub Pages
 
 ```bash
-# Just push to main!
+# 1. Merge to main
 git checkout main
 git merge feat/my-feature
+
+# 2. Push
 git push
 
-# GitHub Pages auto-deploys (wait ~1 minute)
-# Check: https://jonschull.github.io/ERA_Landscape_Static/
+# 3. Wait for GitHub Pages build (~1-2 minutes)
+# Check build status:
+gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest | jq -r '.status'
+# Should show: "built"
+
+# 4. Verify live site
+open https://jonschull.github.io/ERA_Landscape_Static/
+
+# 5. Test live site
+# - Check console for auto-load messages
+# - Verify node count matches Sheet
+# - Test Refresh button
+# - Test Sign In flow
 ```
 
 ---
@@ -236,24 +281,35 @@ Watch API calls:
 
 **Sections:**
 - `<head>` - Metadata, styles, Google API libraries
-- `<body>` - UI elements (toolbar, modals, graph container)
-- `<script>` (inline) - Configuration, data initialization
+- `<body>` - UI elements (toolbar, modals, graph container, loading screen)
+- `<script>` (inline) - Configuration, Google Sheets API functions, empty DataSets
 - `<script src="graph.js">` - Main logic (external file)
 
 **Key elements:**
+- `#loading` - Loading screen (shows until data loads)
 - `#network` - Graph container (vis-network renders here)
-- `#toolbar` - Buttons and controls
+- `#toolbar` - Buttons and controls (Fit, Highlight, Refresh, etc.)
 - `#signInBtn` - OAuth sign-in button
 - Toast notifications for user feedback
+
+**Important functions:**
+- `initSheetsApi()` - Initializes Google Sheets API, auto-loads data
+- `loadDataFromSheets()` - Fetches nodes & edges from Sheet
+- `saveDataToSheets()` - Writes changes back to Sheet
+- `getNodeVisuals(type)` - Returns color/shape for node type (DRY)
+- `parseTypeFromId(id)` - Extracts type from ID prefix
+- `hideLoading()` - Hides loading screen after data ready
 
 ### graph.js
 
 **Sections:**
-- Google Sheets functions (`readSheetTab`, `writeSheetTab`, `loadDataFromSheets`, `saveDataToSheets`)
-- Graph initialization (vis-network setup)
-- Toolbar logic (buttons, filters)
+- Graph initialization (vis-network setup with empty DataSets)
+- Toolbar logic (buttons, filters, counts)
 - Quick Editor (add/remove connections)
-- Event handlers
+- Event handlers (node clicks, double-clicks)
+- Utility functions (updateCounts, etc.)
+
+**Note:** Google Sheets functions are in `index.html` inline script
 
 ---
 
@@ -265,8 +321,10 @@ Watch API calls:
 - Just edit HTML/JS directly
 
 ### 2. Test Locally First
-- Always open `index.html` locally before pushing
-- Check console for errors
+- **MUST use HTTP server**: `python3 -m http.server 8000`
+- **NEVER test with `file://`** - Google Sheets API won't work
+- Check console for auto-load success messages
+- Verify node count matches Sheet (~350+)
 - Test all buttons/features
 
 ### 3. Small Commits
@@ -283,17 +341,40 @@ Watch API calls:
 
 ## GitHub Pages Configuration
 
-Already set up! But if you need to reconfigure:
+**Already configured! Every push to main auto-deploys.**
 
-**Repository Settings → Pages:**
+**Current settings:**
+- URL: https://jonschull.github.io/ERA_Landscape_Static/
 - Source: Deploy from a branch
 - Branch: `main`
 - Folder: `/` (root)
-- Custom domain: (optional)
+- Build type: `legacy` (standard Jekyll)
+- HTTPS: Enforced
+
+**To check deployment status:**
+```bash
+# Check latest build
+gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest
+
+# Just get status
+gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest | jq -r '.status'
+
+# Should return: "built" when complete
+```
+
+**Build times:**
+- First deploy: ~1-2 minutes
+- Subsequent updates: ~30-60 seconds
 
 **Files needed:**
 - `index.html` (must be in root)
-- `.nojekyll` (tells GitHub not to use Jekyll)
+- `graph.js` (must be in root)
+
+**To manually enable (if needed):**
+```bash
+gh api repos/jonschull/ERA_Landscape_Static/pages -X POST \
+  -F 'source[branch]=main' -F 'source[path]=/'
+```
 
 ---
 

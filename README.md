@@ -8,13 +8,14 @@ Interactive graph visualization for the climate/restoration landscape. Pure HTML
 
 ## What Is This?
 
-A **standalone HTML file** that:
-- Loads data directly from Google Sheets
-- Shows 352+ organizations and their relationships
+A **standalone HTML file** (20KB) that:
+- Auto-loads fresh data from Google Sheets on page load
+- Shows 350+ organizations and their relationships
 - Allows editing (with Google sign-in)
 - Requires NO server, NO Python, NO backend
+- NO embedded data - always shows latest from Sheet
 
-**Just open `index.html` in a browser.**
+**Just open via HTTP server or GitHub Pages.**
 
 ---
 
@@ -36,7 +37,7 @@ python3 -m http.server 8000
 open http://localhost:8000
 ```
 
-**Note:** Opening `index.html` directly (file:// protocol) will display the graph with embedded data, but Google Sheets API features (Refresh, Save) won't work. Use HTTP server or GitHub Pages for full functionality.
+**Note:** Opening `index.html` directly (file:// protocol) won't work - Google Sheets API requires HTTP/HTTPS. Use HTTP server locally or GitHub Pages for deployment.
 
 ### Deploy to GitHub Pages
 
@@ -48,10 +49,14 @@ Already configured! Just push to main and GitHub Pages auto-deploys.
 
 ## How It Works
 
-### Data Source
-- **Google Sheet**: [ERA Climate Week Data](https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit)
-- Browser fetches data via Google Sheets API (read-only with API key)
-- No embedded data in HTML
+### Data Flow
+1. **Page loads** → Empty graph initialized
+2. **Google Sheets API initializes** → API key authentication
+3. **Data auto-loads** → Fetches nodes & edges from [ERA Climate Week Data](https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit)
+4. **Graph renders** → Shows ~350+ nodes with relationships
+5. **Loading screen hides** → Interactive graph ready
+
+**Zero embedded data** → Always shows fresh data from Sheet
 
 ### Authentication
 - **Viewing**: No sign-in required (public read via API key)
@@ -149,14 +154,39 @@ python test_load.py
 
 ### GitHub Pages (Automatic)
 
-Already configured! Every push to `main` auto-deploys.
+Already configured! Every push to `main` auto-deploys in ~1-2 minutes.
+
+**To update the live site:**
+```bash
+# 1. Make your changes
+code index.html
+
+# 2. Test locally
+python3 -m http.server 8000
+open http://localhost:8000
+
+# 3. Commit and push
+git add .
+git commit -m "Description of changes"
+git push
+
+# 4. Wait for deployment (~1-2 minutes)
+# Check status:
+gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest | jq -r '.status'
+
+# 5. Verify live site
+open https://jonschull.github.io/ERA_Landscape_Static/
+```
 
 **Settings → Pages:**
 - Source: Deploy from branch
 - Branch: `main`
 - Folder: `/` (root)
+- URL: https://jonschull.github.io/ERA_Landscape_Static/
 
-**URL**: https://jonschull.github.io/ERA_Landscape_Static/
+**Build typically completes in:**
+- First deploy: ~1-2 minutes
+- Subsequent updates: ~30-60 seconds
 
 ### Other Hosting
 
@@ -175,12 +205,15 @@ Works on any static host:
 ## Features
 
 ### Current
+- ✅ Auto-loads fresh data from Google Sheets on page init
 - ✅ Interactive graph (drag, zoom, pan)
 - ✅ Quick Editor (add/remove connections)
 - ✅ Search filtering
 - ✅ Hide/show nodes
 - ✅ Save changes to Google Sheets (with sign-in)
-- ✅ Refresh data from Sheets
+- ✅ Refresh data button (re-fetch from Sheets)
+- ✅ Color-coded by type (person=blue, org=teal, project=purple)
+- ✅ Type parsed from ID prefix (person::, org::, project::)
 
 ### Planned
 - [ ] Curation modal for organizations
