@@ -769,20 +769,26 @@
         console.log('[QE] Enter detected, calling doAdd');
         e.preventDefault();
         doAdd();
-        clearHighlights();  // Clear yellow borders after adding
+        clearAllHighlights();  // Clear yellow borders after adding
       }
     }
     qeFrom.addEventListener('keydown', handleEnterKey);
     qeTo.addEventListener('keydown', handleEnterKey);
     qeRelCustom.addEventListener('keydown', handleEnterKey);
 
-    // Highlight nodes when single match found
-    let highlightedNodes = [];
+    // Highlight nodes when single match found - track From and To separately
+    let highlightedFromNode = null;
+    let highlightedToNode = null;
     let highlightInterval = null;
     
-    function clearHighlights() {
-      if (highlightedNodes.length > 0) {
-        const updates = highlightedNodes.map(id => {
+    function clearAllHighlights() {
+      // Clear both From and To highlights
+      const nodesToClear = [];
+      if (highlightedFromNode) nodesToClear.push(highlightedFromNode);
+      if (highlightedToNode) nodesToClear.push(highlightedToNode);
+      
+      if (nodesToClear.length > 0) {
+        const updates = nodesToClear.map(id => {
           const node = nodes.get(id);
           const type = node.type || node.group;
           const visuals = getNodeVisuals(type);
@@ -793,7 +799,8 @@
           };
         });
         nodes.update(updates);
-        highlightedNodes = [];
+        highlightedFromNode = null;
+        highlightedToNode = null;
       }
       // Stop reapplying highlights
       if (highlightInterval) {
@@ -802,31 +809,67 @@
       }
     }
     
-    function reapplyHighlights() {
-      // Reapply yellow borders to highlighted nodes (in case network events reset them)
-      if (highlightedNodes.length > 0) {
-        highlightedNodes.forEach(nodeId => {
-          const node = nodes.get(nodeId);
-          if (node && node.color.border !== '#FFD700') {
-            nodes.update({
-              id: nodeId,
-              borderWidth: 5,
-              color: {
-                background: node.color.background,
-                border: '#FFD700'
-              }
-            });
-          }
+    function clearHighlightForField(isFrom) {
+      // Clear highlight for specific field only
+      const nodeId = isFrom ? highlightedFromNode : highlightedToNode;
+      if (nodeId) {
+        const node = nodes.get(nodeId);
+        const type = node.type || node.group;
+        const visuals = getNodeVisuals(type);
+        nodes.update({
+          id: nodeId,
+          borderWidth: 1,
+          color: visuals.color
         });
+        
+        if (isFrom) {
+          highlightedFromNode = null;
+        } else {
+          highlightedToNode = null;
+        }
       }
     }
     
-    function highlightNode(label, inputElement) {
-      // Clear previous highlights
-      clearHighlights();
+    function reapplyHighlights() {
+      // Reapply yellow borders to both highlighted nodes (in case network events reset them)
+      const nodesToHighlight = [];
+      if (highlightedFromNode) nodesToHighlight.push(highlightedFromNode);
+      if (highlightedToNode) nodesToHighlight.push(highlightedToNode);
       
-      // If empty, just return (highlights cleared)
-      if (!label || label.trim().length === 0) return;
+      nodesToHighlight.forEach(nodeId => {
+        const node = nodes.get(nodeId);
+        if (node && node.color.border !== '#FFD700') {
+          nodes.update({
+            id: nodeId,
+            borderWidth: 5,
+            color: {
+              background: node.color.background,
+              border: '#FFD700'
+            }
+          });
+        }
+      });
+    }
+    
+    function highlightNode(label, isFrom) {
+      // Clear previous highlight for THIS field only
+      clearHighlightForField(isFrom);
+      
+      // If empty, just return (that field's highlight cleared)
+      if (!label || label.trim().length === 0) {
+        // Restart interval if other field still highlighted
+        if (highlightedFromNode || highlightedToNode) {
+          if (highlightInterval) clearInterval(highlightInterval);
+          highlightInterval = setInterval(reapplyHighlights, 100);
+        } else {
+          // No highlights left, stop interval
+          if (highlightInterval) {
+            clearInterval(highlightInterval);
+            highlightInterval = null;
+          }
+        }
+        return;
+      }
       
       const all = nodes.get();
       const matches = all.filter(n => 
@@ -845,24 +888,31 @@
             border: '#FFD700'  // Gold/yellow border
           }
         });
-        highlightedNodes.push(nodeId);
-        console.log(`[QE] Highlighted node: ${node.label}`);
         
-        // Continuously reapply highlight every 100ms to prevent network from overriding it
+        // Store in appropriate field
+        if (isFrom) {
+          highlightedFromNode = nodeId;
+        } else {
+          highlightedToNode = nodeId;
+        }
+        
+        console.log(`[QE] Highlighted ${isFrom ? 'From' : 'To'} node: ${node.label}`);
+        
+        // Continuously reapply highlights every 100ms to prevent network from overriding them
         if (highlightInterval) clearInterval(highlightInterval);
         highlightInterval = setInterval(reapplyHighlights, 100);
       }
     }
     
-    qeFrom.addEventListener('input', (e) => highlightNode(e.target.value, qeFrom));
-    qeTo.addEventListener('input', (e) => highlightNode(e.target.value, qeTo));
+    qeFrom.addEventListener('input', (e) => highlightNode(e.target.value, true));
+    qeTo.addEventListener('input', (e) => highlightNode(e.target.value, false));
     // Don't clear on blur - keep highlights visible until user changes input
     // qeFrom.addEventListener('blur', clearHighlights);
     // qeTo.addEventListener('blur', clearHighlights);
 
     qeAdd.onclick = () => {
       doAdd();
-      clearHighlights();  // Clear yellow borders after adding
+      clearAllHighlights();  // Clear yellow borders after adding
     };
     qeRemove.onclick = doRemove;
     qeSaveTop.onclick = doSave;
