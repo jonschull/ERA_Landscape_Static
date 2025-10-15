@@ -12,7 +12,7 @@
   .legend div { margin: 4px 0; }
   .legend .dot { display:inline-block; width:12px; height:12px; border-radius:50%; background:#888; margin-right:6px; vertical-align:middle; }
   .legend .box { display:inline-block; width:12px; height:12px; background:#aaa; margin-right:6px; vertical-align:middle; }
-  .legend .tri { display:inline-block; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:12px solid #ff9800; margin-right:6px; vertical-align:middle; }
+  .legend .tri { display:inline-block; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:12px solid #ce93d8; margin-right:6px; vertical-align:middle; }
   #loading { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.92); display:flex; align-items:center; justify-content:center; z-index: 9999; font-family: sans-serif; }
   #loading .panel { text-align:center; color:#333; }
   #loading .title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
@@ -156,6 +156,18 @@
   let tokenClient = null;
   let accessToken = null;
   let pendingSaveAfterAuth = false;
+  
+  /**
+   * Parse node type from ID prefix (person::, org::, project::)
+   * @param {string} id - Node ID like "person::John Doe"
+   * @returns {string} Type: 'person', 'project', or 'organization'
+   */
+  function parseTypeFromId(id) {
+    if (!id) return 'organization';
+    if (id.startsWith('person::')) return 'person';
+    if (id.startsWith('project::')) return 'project';
+    return 'organization';
+  }
   
   /**
    * Get visual properties (color, shape) for a node type
@@ -351,7 +363,8 @@
       console.log(`✅ Loaded ${nodesData.length} nodes, ${edgesData.length} edges from Sheets`);
       
       const nodesPayload = nodesData.map(n => {
-        const type = n.type || 'organization';
+        // Parse type from ID prefix (Sheet's type column is unreliable)
+        const type = parseTypeFromId(n.id);
         const visuals = getNodeVisuals(type);
         
         return {
