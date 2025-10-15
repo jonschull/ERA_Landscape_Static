@@ -41,9 +41,11 @@ open http://localhost:8000
 
 ### Deploy to GitHub Pages
 
-Already configured! Just push to main and GitHub Pages auto-deploys.
+Already configured! Merge PRs to main and GitHub Pages auto-deploys.
 
 **URL**: https://jonschull.github.io/ERA_Landscape_Static/
+
+**Important**: Use branch-based workflow (see DEVELOPMENT.md)
 
 ---
 
@@ -121,20 +123,26 @@ const CLIENT_ID = '57881875374-flipnf45tc25cq7emcr9qhvq7unk16n5.apps.googleuserc
 ### Edit the HTML/JavaScript
 
 ```bash
-# Edit files directly
+# Create feature branch
+git checkout -b feat/feature-name
+
+# Edit files
 code index.html
 code graph.js
 
-# Test locally
-open index.html
+# Test locally (MUST use HTTP server)
+python3 -m http.server 8000
+open http://localhost:8000
 
 # Commit changes
 git add .
-git commit -m "Update feature"
-git push
+git commit -m "feat: Update feature"
+git push origin feat/feature-name
+
+# Create PR on GitHub, then merge to main
 ```
 
-**No build step. No compilation. Just edit and open.**
+**No build step. No compilation. Just edit and test.**
 
 ### Run Tests
 
@@ -158,23 +166,28 @@ Already configured! Every push to `main` auto-deploys in ~1-2 minutes.
 
 **To update the live site:**
 ```bash
-# 1. Make your changes
+# 1. Create feature branch
+git checkout -b feat/my-change
+
+# 2. Make your changes
 code index.html
 
-# 2. Test locally
+# 3. Test locally (REQUIRED - needs HTTP server)
 python3 -m http.server 8000
 open http://localhost:8000
 
-# 3. Commit and push
+# 4. Commit and push branch
 git add .
-git commit -m "Description of changes"
-git push
+git commit -m "feat: Description of changes"
+git push origin feat/my-change
 
-# 4. Wait for deployment (~1-2 minutes)
-# Check status:
+# 5. Create PR and merge to main
+# (via GitHub UI or gh pr create)
+
+# 6. Wait for deployment (~1-2 minutes)
 gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest | jq -r '.status'
 
-# 5. Verify live site
+# 7. Verify live site
 open https://jonschull.github.io/ERA_Landscape_Static/
 ```
 
@@ -206,14 +219,20 @@ Works on any static host:
 
 ### Current
 - ✅ Auto-loads fresh data from Google Sheets on page init
+- ✅ Auto-fit graph after data loads (2 second delay for physics)
 - ✅ Interactive graph (drag, zoom, pan)
+- ✅ Node scaling by connection count (1-17 connections = 12-60px)
 - ✅ Quick Editor (add/remove connections)
+  - ✅ Enter key triggers Add/Update
+  - ✅ Yellow border highlights matching nodes
+  - ✅ Both From and To fields highlighted simultaneously
 - ✅ Search filtering
 - ✅ Hide/show nodes
 - ✅ Save changes to Google Sheets (with sign-in)
-- ✅ Refresh data button (re-fetch from Sheets)
+- ✅ Re-Load button (re-fetch from Sheets with guardrail for unsaved changes)
 - ✅ Color-coded by type (person=blue, org=teal, project=purple)
 - ✅ Type parsed from ID prefix (person::, org::, project::)
+- ✅ Hover tooltips on all buttons
 
 ### Planned
 - [ ] Curation modal for organizations
