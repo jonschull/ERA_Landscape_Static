@@ -566,8 +566,7 @@
       const nid = pref + String(label).trim();
       if (!nodes.get(nid)){
         const group = (fromSel==='person') ? 'person' : (fromSel==='project' ? 'project' : 'organization');
-        const shape = (fromSel==='person') ? 'dot' : (fromSel==='project' ? 'triangle' : 'box');
-        const color = (fromSel==='person') ? {background:'#6aa7ff', border:'#2f79ff'} : (fromSel==='project' ? {background:'#ce93d8', border:'#ba68c8'} : {background:'#a8dadc', border:'#457b9d'});
+        const visuals = getNodeVisuals(group);
         // Position new node near reference node (if provided) to prevent racing offscreen
         let x = Math.random() * 200 - 100;
         let y = Math.random() * 200 - 100;
@@ -578,7 +577,7 @@
             y = refPos.y + (Math.random() * 200 - 100);
           }
         }
-        nodes.add({ id:nid, label:String(label).trim(), group:group, shape:shape, origin:origin, color:color, value:1, x:x, y:y });
+        nodes.add({ id:nid, label:String(label).trim(), group:group, shape:visuals.shape, origin:origin, color:visuals.color, value:1, x:x, y:y });
       }
       return nid;
     }
@@ -593,8 +592,7 @@
       const nid = pref + String(label).trim();
       if (!nodes.get(nid)){
         const group = (toSel==='person') ? 'person' : (toSel==='project' ? 'project' : 'organization');
-        const shape = (toSel==='person') ? 'dot' : (toSel==='project' ? 'triangle' : 'box');
-        const color = (toSel==='person') ? {background:'#6aa7ff', border:'#2f79ff'} : (toSel==='project' ? {background:'#ce93d8', border:'#ba68c8'} : {background:'#a8dadc', border:'#457b9d'});
+        const visuals = getNodeVisuals(group);
         // Position new node near reference node (if provided) to prevent racing offscreen
         let x = Math.random() * 200 - 100;
         let y = Math.random() * 200 - 100;
@@ -605,7 +603,7 @@
             y = refPos.y + (Math.random() * 200 - 100);
           }
         }
-        nodes.add({ id:nid, label:String(label).trim(), group:group, shape:shape, origin:origin, color:color, value:1, x:x, y:y });
+        nodes.add({ id:nid, label:String(label).trim(), group:group, shape:visuals.shape, origin:origin, color:visuals.color, value:1, x:x, y:y });
       }
       return nid;
     }
