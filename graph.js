@@ -778,6 +778,8 @@
 
     // Highlight nodes when single match found
     let highlightedNodes = [];
+    let highlightInterval = null;
+    
     function clearHighlights() {
       if (highlightedNodes.length > 0) {
         const updates = highlightedNodes.map(id => {
@@ -792,6 +794,30 @@
         });
         nodes.update(updates);
         highlightedNodes = [];
+      }
+      // Stop reapplying highlights
+      if (highlightInterval) {
+        clearInterval(highlightInterval);
+        highlightInterval = null;
+      }
+    }
+    
+    function reapplyHighlights() {
+      // Reapply yellow borders to highlighted nodes (in case network events reset them)
+      if (highlightedNodes.length > 0) {
+        highlightedNodes.forEach(nodeId => {
+          const node = nodes.get(nodeId);
+          if (node && node.color.border !== '#FFD700') {
+            nodes.update({
+              id: nodeId,
+              borderWidth: 5,
+              color: {
+                background: node.color.background,
+                border: '#FFD700'
+              }
+            });
+          }
+        });
       }
     }
     
@@ -821,6 +847,10 @@
         });
         highlightedNodes.push(nodeId);
         console.log(`[QE] Highlighted node: ${node.label}`);
+        
+        // Continuously reapply highlight every 100ms to prevent network from overriding it
+        if (highlightInterval) clearInterval(highlightInterval);
+        highlightInterval = setInterval(reapplyHighlights, 100);
       }
     }
     
