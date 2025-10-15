@@ -762,6 +762,67 @@
     qeTo.addEventListener('blur', autoSetToType);
     qeTo.addEventListener('input', autoSetToType);
 
+    // Enter key triggers Add/Update
+    function handleEnterKey(e) {
+      console.log('[QE] Key pressed:', e.key);
+      if (e.key === 'Enter') {
+        console.log('[QE] Enter detected, calling doAdd');
+        e.preventDefault();
+        doAdd();
+      }
+    }
+    qeFrom.addEventListener('keydown', handleEnterKey);
+    qeTo.addEventListener('keydown', handleEnterKey);
+    qeRelCustom.addEventListener('keydown', handleEnterKey);
+
+    // Highlight nodes when single match found
+    let highlightedNodes = [];
+    function clearHighlights() {
+      if (highlightedNodes.length > 0) {
+        const updates = highlightedNodes.map(id => {
+          const node = nodes.get(id);
+          const type = node.type || node.group;
+          const visuals = getNodeVisuals(type);
+          return {
+            id: id,
+            borderWidth: 1,
+            color: visuals.color
+          };
+        });
+        nodes.update(updates);
+        highlightedNodes = [];
+      }
+    }
+    
+    function highlightNode(label, inputElement) {
+      clearHighlights();
+      if (!label || label.trim().length === 0) return;
+      
+      const all = nodes.get();
+      const matches = all.filter(n => 
+        String(n.label).trim().toLowerCase() === String(label).trim().toLowerCase()
+      );
+      
+      if (matches.length === 1) {
+        const node = matches[0];
+        const nodeId = node.id;
+        nodes.update({
+          id: nodeId,
+          borderWidth: 5,
+          color: { 
+            background: node.color.background,
+            border: '#FFD700'  // Gold/yellow border
+          }
+        });
+        highlightedNodes.push(nodeId);
+      }
+    }
+    
+    qeFrom.addEventListener('input', (e) => highlightNode(e.target.value, qeFrom));
+    qeTo.addEventListener('input', (e) => highlightNode(e.target.value, qeTo));
+    qeFrom.addEventListener('blur', clearHighlights);
+    qeTo.addEventListener('blur', clearHighlights);
+
     qeAdd.onclick = doAdd;
     qeRemove.onclick = doRemove;
     qeSaveTop.onclick = doSave;
