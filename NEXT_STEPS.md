@@ -42,6 +42,15 @@
 - Added GitHub Pages update workflow
 - Documented HTTP/HTTPS requirement throughout
 
+### Phase 6: UI Improvements (Oct 15, 2025) ✅
+- Auto-fit graph after data loads
+- Node scaling by connection count (12-60px)
+- Enter key triggers Add/Update in Quick Editor
+- Yellow border highlights for matching nodes
+- Removed redundant buttons (Reset, Highlight Seed/Discovered)
+- Added hover tooltips to all buttons
+- Re-Load button with guardrail for unsaved changes
+
 ---
 
 ## Current Status
@@ -59,40 +68,51 @@
 
 **What Works:**
 - ✅ Auto-loads fresh data from Google Sheets on page load
+- ✅ Auto-fit graph after data loads (2 second physics delay)
 - ✅ Interactive graph (drag, zoom, pan)
+- ✅ Node scaling by connection count (1-17 connections)
 - ✅ Color-coded by type (matches legend)
 - ✅ Search/filter functionality
-- ✅ Refresh button (re-fetch from Sheet)
+- ✅ Quick Editor with Enter key support
+- ✅ Yellow border highlights for matching nodes
+- ✅ Re-Load button with unsaved changes guardrail
 - ✅ Sign In (OAuth) for editing
 - ✅ Save changes back to Sheet
 - ✅ GitHub Pages auto-deployment
+- ✅ Hover tooltips on all buttons
 
 ---
 
 ## How to Update the Live Site
 
 ```bash
-# 1. Make changes locally
+# 1. Create feature branch
+git checkout -b feat/my-feature
+
+# 2. Make changes locally
 code index.html  # or graph.js
 
-# 2. Test with HTTP server (REQUIRED)
+# 3. Test with HTTP server (REQUIRED)
 python3 -m http.server 8000
 open http://localhost:8000
 
-# 3. Verify in console:
+# 4. Verify in console:
 # - "✅ Google Sheets API client initialized"
 # - "✅ Loaded XXX nodes, YYY edges from Sheets"
 # - "🎉 Initial data load complete"
 
-# 4. Commit and push
+# 5. Commit and push branch
 git add .
-git commit -m "Description of changes"
-git push
+git commit -m "feat: Description of changes"
+git push origin feat/my-feature
 
-# 5. Wait for deployment (~1-2 minutes)
+# 6. Create PR and merge to main
+gh pr create  # or use GitHub UI
+
+# 7. Wait for deployment (~1-2 minutes)
 gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest | jq -r '.status'
 
-# 6. Verify live site
+# 8. Verify live site
 open https://jonschull.github.io/ERA_Landscape_Static/
 ```
 
@@ -105,7 +125,7 @@ These are nice-to-haves, not critical:
 ### UI/UX Improvements
 - [ ] Add dark mode toggle
 - [ ] Improve loading screen with progress indicator
-- [ ] Add keyboard shortcuts
+- [✅] Add keyboard shortcuts (Enter key in Quick Editor)
 - [ ] Add undo/redo functionality
 - [ ] Export graph as PNG/SVG
 - [ ] Export data as CSV
@@ -228,8 +248,8 @@ gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest | jq -r '.status
 # Run tests
 python3.9 tests/test_sheets_integration.py
 
-# Quick commit and push
-git add . && git commit -m "message" && git push
+# Quick commit and push to branch
+git add . && git commit -m "feat: message" && git push origin <branch-name>
 
 # View live site
 open https://jonschull.github.io/ERA_Landscape_Static/
