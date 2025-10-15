@@ -1,6 +1,7 @@
 # Deployment Guide - ERA Landscape Static
 
 **Quick Links:**
+
 - **Live Site**: https://jonschull.github.io/ERA_Landscape_Static/
 - **Repository**: https://github.com/jonschull/ERA_Landscape_Static
 - **Google Sheet**: https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit
@@ -74,11 +75,13 @@ Before pushing to production, verify:
 ### Build Fails
 
 **Check build status:**
+
 ```bash
 gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest
 ```
 
 **Common issues:**
+
 - Syntax error in HTML/JS → Check console locally first
 - File too large → We're at 20KB, shouldn't be an issue
 - Branch not found → Ensure you pushed to `main`
@@ -86,11 +89,13 @@ gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest
 ### Site Doesn't Update
 
 **Possible causes:**
+
 1. **Browser cache** → Hard refresh: `Cmd+Shift+R` (Mac) or `Ctrl+F5` (Windows)
 2. **Build still running** → Wait 1-2 minutes, check build status
 3. **CDN cache** → Can take up to 10 minutes to propagate globally
 
 **Force verify:**
+
 ```bash
 # Check what's actually deployed
 curl -s https://jonschull.github.io/ERA_Landscape_Static/ | grep -o "ERA Graph"
@@ -99,10 +104,11 @@ curl -s https://jonschull.github.io/ERA_Landscape_Static/ | grep -o "ERA Graph"
 ### Data Doesn't Load
 
 **Check:**
+
 1. **Console errors** → Open DevTools and check for red errors
 2. **API key** → Verify `API_KEY` in `index.html` is correct
 3. **Sheet permissions** → Sheet must be publicly readable
-4. **Network tab** → Check if API calls are succeeding (200 status)
+4. **Network tab** → Check if API calls are succeeding (200 status) 
 
 ---
 
@@ -124,6 +130,7 @@ git push --force
 ```
 
 **Example:**
+
 ```bash
 git log --oneline -5
 # 4549952 docs: Complete documentation update
@@ -142,11 +149,13 @@ git push --force
 ### Check Site Health
 
 **Automated test:**
+
 ```bash
 python3.9 tests/test_sheets_integration.py
 ```
 
 **Manual verification:**
+
 1. Visit https://jonschull.github.io/ERA_Landscape_Static/
 2. Open console (Cmd+Option+J)
 3. Verify messages:
@@ -161,12 +170,14 @@ python3.9 tests/test_sheets_integration.py
 ### Performance Metrics
 
 **Expected:**
+
 - Page load: <1 second (HTML parse)
 - API init: ~2-3 seconds
 - Data load: ~1-2 seconds
 - Total to interactive: ~3-5 seconds
 
 **Monitor:**
+
 - Use Chrome DevTools → Network tab
 - Check "Finish" time
 - Look for slow API calls
@@ -178,15 +189,18 @@ python3.9 tests/test_sheets_integration.py
 ### API Keys
 
 Current credentials in `index.html`:
+
 - `API_KEY`: For read-only access to public Sheet
 - `CLIENT_ID`: For OAuth (write access)
 
 **These are safe to commit** because:
+
 - API Key is restricted to Sheets API only
 - OAuth requires user sign-in
 - Sheet is already public
 
 **If compromised:**
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 2. Regenerate API Key
 3. Create new OAuth Client ID
@@ -196,10 +210,12 @@ Current credentials in `index.html`:
 ### Sheet Permissions
 
 **Required:**
+
 - Sheet must be "Anyone with link can **view**"
 - Write access requires OAuth sign-in
 
 **To verify:**
+
 1. Open Sheet
 2. Click "Share"
 3. Ensure "Anyone with the link" has "Viewer" access
@@ -225,16 +241,17 @@ To add Google Analytics:
 
 ## 🎯 Quick Reference
 
-| Task | Command |
-|------|---------|
-| Test locally | `python3 -m http.server 8000` |
+| Task               | Command                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| Test locally       | `python3 -m http.server 8000`                                                       |
 | Check build status | `gh api repos/jonschull/ERA_Landscape_Static/pages/builds/latest \| jq -r '.status'` |
-| View live site | `open https://jonschull.github.io/ERA_Landscape_Static/` |
-| Run tests | `python3.9 tests/test_sheets_integration.py` |
-| Check last commits | `git log --oneline -10` |
-| View file size | `ls -lh index.html` |
+| View live site     | `open https://jonschull.github.io/ERA_Landscape_Static/`                            |
+| Run tests          | `python3.9 tests/test_sheets_integration.py`                                        |
+| Check last commits | `git log --oneline -10`                                                             |
+| View file size     | `ls -lh index.html`                                                                 |
 
 **Bookmarks:**
+
 - Live Site: https://jonschull.github.io/ERA_Landscape_Static/
 - Repository: https://github.com/jonschull/ERA_Landscape_Static
 - Google Sheet: https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit
@@ -255,6 +272,7 @@ To add Google Analytics:
 ## ✅ Success Criteria
 
 Site is working correctly when:
+
 - ✅ Page loads in <5 seconds
 - ✅ Console shows API initialization success
 - ✅ ~350+ nodes display

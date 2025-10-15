@@ -1,6 +1,7 @@
 ERA Landscape - Static Viewer - Handoff Package
 ===============================================
-Date: October 13, 2025
+Date: October 15, 2025
+Status: ✅ PRODUCTION DEPLOYED & FULLY FUNCTIONAL
 
 AI ASSISTANT: READ THIS FIRST
 ------------------------------
@@ -68,115 +69,134 @@ Relationship to ERA_ClimateWeek:
 - This project: Pure viewer, reads from same Sheet
 - Workflow: ClimateWeek processes data → writes to Sheet → Static viewer displays
 
-CURRENT STATE (October 13, 2025)
+CURRENT STATE (October 15, 2025)
 ---------------------------------
 
+✅ **LIVE SITE**: https://jonschull.github.io/ERA_Landscape_Static/
+✅ **REPOSITORY**: https://github.com/jonschull/ERA_Landscape_Static
+✅ **STATUS**: Fully functional, auto-deploys from main branch
+
 Files:
-✅ index.html - Main HTML file (~1500 lines, extracted from parent project)
-✅ graph.js - JavaScript logic (~600 lines)
-✅ README.md - Project overview
-✅ DEVELOPMENT.md - Developer guide
-✅ AI_HANDOFF_GUIDE.md - For AI assistants (this is essential!)
+✅ index.html - Main HTML file (517 lines, includes Sheets API integration)
+✅ graph.js - JavaScript logic (1046 lines, all UI features)
+✅ README.md - Project overview & quick start
+✅ DEVELOPMENT.md - Developer guide with WORKFLOW REQUIREMENT
+✅ NEXT_STEPS.md - Roadmap & completed phases
 ✅ TESTING.md - Testing workflow
 ✅ VISION.md - Long-term goals
-✅ NEXT_STEPS.md - Roadmap
-✅ tests/test_load.py - Playwright test
+✅ AI_HANDOFF_GUIDE.md - For AI assistants
+✅ SHEET_ANALYSIS_V2.md - User tracking & personal sheets design (future)
+✅ tests/*.py - 12 Playwright tests
 ✅ .gitignore - Git ignore rules
 
 Git Status:
-✅ Repository initialized
-✅ Initial commit made
+✅ Repository: https://github.com/jonschull/ERA_Landscape_Static
 ✅ On branch: main
-❌ Not pushed to GitHub yet
-❌ No remote configured yet
+✅ Remote: origin (GitHub)
+✅ GitHub Pages: ENABLED & AUTO-DEPLOYING
+✅ Latest commit: 312bcda (docs: Emphasize branch-based workflow requirement #3)
 
-Testing Status:
-✅ test_load.py passes (HTML loads, structure intact)
-⚠️ No data loads yet (needs external script fix + API integration)
-⚠️ Not tested in Edge yet
-
-Current Features (from parent project):
+Production Features (COMPLETED):
+✅ Google Sheets API integration (read/write)
+✅ OAuth sign-in flow (write access)
+✅ Auto-load data from Sheets on page init
+✅ Auto-fit graph after data loads (2 second physics delay)
+✅ Node scaling by connection count (12-60px, 1-17 connections)
 ✅ Interactive graph visualization (vis-network)
-✅ 352 nodes, 220 edges (embedded in HTML currently)
 ✅ Quick Editor (add/remove connections)
-✅ Node modals (click node to edit)
-✅ Edge modals (click edge to edit/delete)
+  ✅ Enter key triggers Add/Update
+  ✅ Yellow border highlights matching nodes
+  ✅ Both From and To fields highlighted simultaneously
 ✅ Search filtering
 ✅ Hide/show nodes
-✅ Custom relationships
+✅ Re-Load button (refresh from Sheet with unsaved changes guardrail)
+✅ Save button (OAuth required)
+✅ Hover tooltips on all buttons
+✅ Color-coded by type (person=blue, org=teal, project=purple)
+✅ Type parsed from ID prefix (person::, org::, project::)
+✅ ~355 nodes, ~220 edges (live from Google Sheet)
 
-What's Missing (needs to be added):
-❌ Google Sheets API integration (read/write)
-❌ OAuth sign-in flow
-❌ External script loading (graph.js currently referenced but not loading)
-❌ Refresh button functionality
-❌ Save button functionality
-❌ GitHub repository created
-❌ GitHub Pages deployment
+Next Features (PLANNED):
+📋 User tracking (created_by, updated_by columns) - See SHEET_ANALYSIS_V2.md
+📋 Personal vs Global sheets - See SHEET_ANALYSIS_V2.md
+📋 Node details panel (display url, notes, member, origin fields)
+📋 Admin activity log & selective reversion
 
-ARCHITECTURE
-------------
+ARCHITECTURE (IMPLEMENTED)
+--------------------------
 
-Current (with embedded data):
-  User opens index.html (file:// or http://)
+Current Production Flow:
+  User visits https://jonschull.github.io/ERA_Landscape_Static/
     ↓
-  HTML loads with embedded data (352 nodes, 220 edges)
+  Browser loads index.html (20KB, no embedded data)
+    ↓
+  Google Sheets API initializes (API key authentication)
+    ↓
+  Auto-loads data from Google Sheet (~355 nodes, ~220 edges)
     ↓
   vis-network renders graph
     ↓
-  User interacts (but can't save - no backend)
-
-Target (serverless):
-  User opens index.html (file:// or https://github.io)
+  Auto-fit animation (2 second delay for physics)
     ↓
-  Browser loads Google Sheets API libraries
+  User interacts (drag, zoom, search, filter)
     ↓
-  Fetches data from Google Sheet (API key for read)
-    ↓
-  vis-network renders graph
-    ↓
-  User clicks "Sign In" (optional)
+  User clicks "Sign In" (optional, for editing)
     ↓
   OAuth flow → authenticated
     ↓
   User can save edits back to Sheet
 
-No server. No backend. Pure client-side.
+✅ No server. No backend. Pure client-side.
+✅ Data always fresh from Sheet (never stale)
+✅ File size: 20KB (was 131KB with embedded data)
 
-IMMEDIATE NEXT STEPS (see NEXT_STEPS.md)
------------------------------------------
+COMPLETED WORK (October 15, 2025)
+----------------------------------
 
-Step 1: Fix External Script Loading
-  Issue: graph.js isn't loading from file:// protocol
-  Fix: Inline JavaScript into index.html (one file = simpler)
-  Test: Open index.html, check console for errors
-  Commit: When working
+✅ Phase 1-5: Initial deployment (Oct 13-14)
+  - External script loading (graph.js) ✅
+  - Google Sheets API integration ✅  
+  - OAuth sign-in flow ✅
+  - GitHub repository created ✅
+  - GitHub Pages deployment ✅
 
-Step 2: Add Google Sheets API Integration
-  Add: gapi library loading
-  Add: initSheetsApi() function
-  Add: loadDataFromSheets() function
-  Add: saveDataToSheets() function
-  Add: Sign In button
-  Test: Browser test + Playwright test
-  Commit: When API initializes without errors
+✅ Phase 6: UI Improvements (Oct 15)
+  - Auto-fit after data load ✅
+  - Node scaling by connection count ✅
+  - Enter key in Quick Editor ✅
+  - Yellow border highlights (both fields simultaneously) ✅
+  - Removed redundant buttons ✅
+  - Added hover tooltips ✅
+  - Re-Load button with guardrail ✅
 
-Step 3: Test Locally
-  Test: Data loads from Sheets
-  Test: Sign In button works
-  Test: OAuth flow completes
-  Test: Save writes back to Sheet
-  Verify: In Chrome AND Edge
+✅ Documentation & Workflow (Oct 15)
+  - Emphasized branch-based workflow in DEVELOPMENT.md ✅
+  - Updated README.md with current features ✅
+  - Updated NEXT_STEPS.md with Phase 6 ✅
+  - Documented in Issue #2 ✅
+  - Created PR #3 (merged) ✅
 
-Step 4: Create GitHub Repository
-  Create: jonschull/ERA_Landscape_Static
-  Push: Initial working version
-  Configure: GitHub Pages enabled
+NEXT WORK (When Ready)
+----------------------
 
-Step 5: Deploy to GitHub Pages
-  URL: https://jonschull.github.io/ERA_Landscape_Static/
-  Test: Live deployment works
-  Verify: All features work on GitHub Pages
+See SHEET_ANALYSIS_V2.md for detailed design of:
+
+📋 Phase 1: User Tracking (4-6 hours)
+  - Capture user email/name on OAuth sign-in
+  - Add created_by, updated_by, fields_changed columns
+  - Populate on save/update
+  - No UI changes (just backend audit trail)
+
+📋 Phase 2: Personal Sheets (8-12 hours)
+  - Create personal sheet on first save
+  - Checkbox UI (Show Global / Show Personal)
+  - Merge logic (Personal wins conflicts)
+  - Visual distinction (gold borders)
+
+📋 Phase 3: Admin Features (4-6 hours)  
+  - Activity log UI (filter by user)
+  - Selective reversion
+  - Admin panel
 
 TESTING COMMANDS (See TESTING.md and AI_HANDOFF_GUIDE.md for methodology)
 --------------------------------------------------------------------------
@@ -281,5 +301,6 @@ If you're a human:
 - Read DEVELOPMENT.md to edit
 - Check NEXT_STEPS.md for roadmap
 
-Status: Ready for development
-Updated: October 13, 2025
+Status: ✅ Production deployed and fully functional
+Next: User tracking & personal sheets (see SHEET_ANALYSIS_V2.md)
+Updated: October 15, 2025

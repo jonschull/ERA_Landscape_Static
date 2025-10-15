@@ -72,31 +72,31 @@ Present status WITHOUT being asked:
 
 ---
 
-## Current State (as of Oct 13, 2025)
+## Current State (as of Oct 15, 2025)
 
-**What's Done:**
-- ✅ Project created (ERA_Landscape_Static)
-- ✅ index.html extracted from ERA_ClimateWeek
-- ✅ graph.js extracted
-- ✅ Documentation complete (AI handoff, testing, vision)
-- ✅ Git initialized, 3 commits
-- ✅ test_load.py passes (HTML structure intact)
+**✅ PRODUCTION DEPLOYED & FULLY FUNCTIONAL**
 
-**What's Missing:**
-- ❌ graph.js not loading (needs inlining or path fix)
-- ❌ Google Sheets API not integrated
-- ❌ Sign In button doesn't exist yet
-- ❌ GitHub repo not created
-- ❌ GitHub Pages not deployed
+**Live Site:** https://jonschull.github.io/ERA_Landscape_Static/
+**Repository:** https://github.com/jonschull/ERA_Landscape_Static
 
-**Immediate Next Work:**
-1. Fix script loading (inline graph.js into index.html)
-2. Add Google Sheets API (use code in /helpful folder)
-3. Test in Chrome + Edge
-4. Create GitHub repo
-5. Deploy to GitHub Pages
+**All Core Features Complete:**
+- ✅ Google Sheets API integration (read/write)
+- ✅ OAuth sign-in for editing
+- ✅ Auto-load data from Sheets on page init
+- ✅ Auto-fit graph after data loads
+- ✅ Node scaling by connection count
+- ✅ Quick Editor with Enter key & yellow border highlights
+- ✅ Hover tooltips on all buttons
+- ✅ GitHub Pages auto-deployment from main branch
+- ✅ Branch-based workflow documented
 
-**Timeline:** 2-4 hours of focused work
+**Next Work (When Ready):**
+See `SHEET_ANALYSIS_V2.md` for:
+- 📋 User tracking (created_by, updated_by, fields_changed columns)
+- 📋 Personal vs Global sheets architecture
+- 📋 Admin activity log & selective reversion
+
+**Estimated:** 12-18 hours for user tracking + personal sheets
 
 ---
 
@@ -123,60 +123,29 @@ Present status WITHOUT being asked:
 
 ---
 
-## Reference Code Available
+## Git Workflow (MANDATORY - Branch-Based)
 
-**Location:** `/helpful` folder
+⚠️ **CRITICAL**: See `DEVELOPMENT.md` lines 3-19 for workflow requirement.
 
-**Files:**
-- `sheets_api_functions.js` - Read/write functions (TESTED & WORKING)
-- `oauth_init.js` - API initialization & OAuth (TESTED & WORKING)
-- `html_script_tags.html` - Script tags to add to HTML
-- `README_HELPFUL.md` - Integration guide
+**NEVER push directly to main!** Always use feature/fix branches:
 
-**Source:** Extracted from ERA_ClimateWeek `feat/serverless-read` branch  
-**Status:** This code was working before we pivoted  
-**Action:** COPY it, don't rewrite it!
-
----
-
-## Quick Integration Plan
-
-### Step 1: Inline graph.js
-- Copy graph.js contents into index.html `<script>` tag
-- Test: open index.html, check console
-
-### Step 2: Add Google API
-- Copy script tags from `/helpful/html_script_tags.html` to index.html `<head>`
-- Copy `/helpful/oauth_init.js` into inline `<script>`
-- Copy `/helpful/sheets_api_functions.js` into inline `<script>`
-
-### Step 3: Add Sign In Button
-```html
-<button id="signInBtn" onclick="handleSignIn()">🔐 Sign In</button>
-```
-
-### Step 4: Wire Up Buttons
-- Refresh button → `loadDataFromSheets()`
-- Save button → `saveDataToSheets()`
-
-### Step 5: Test
-- Browser: Does it load? Any console errors?
-- Test in Chrome
-- Test in Edge
-- Run test_load.py
-
-### Step 6: Create GitHub Repo
 ```bash
-gh repo create jonschull/ERA_Landscape_Static --public --source=. --remote=origin
-git push -u origin main
-```
+# Create branch
+git checkout -b feat/feature-name  # or fix/bug-description
 
-### Step 7: Enable GitHub Pages
-```bash
-gh repo edit --enable-pages --pages-branch main --pages-path /
-```
+# Make changes, test, commit
+git add .
+git commit -m "feat: Description"
 
-**URL:** https://jonschull.github.io/ERA_Landscape_Static/
+# Push branch
+git push origin feat/feature-name
+
+# Create PR
+gh pr create --title "Feature name"
+
+# After merge
+git checkout main && git pull
+```
 
 ---
 
@@ -215,28 +184,6 @@ I've added the API code. It should work now.
 
 ---
 
-## Git Workflow
-
-**Every change:**
-1. Make small change
-2. Test in browser
-3. Commit if working
-```bash
-git add [files]
-git commit -m "Clear description"
-```
-
-**Every feature:**
-1. Create branch: `git checkout -b feat/feature-name`
-2. Make changes, test, commit
-3. Push: `git push origin feat/feature-name`
-4. Create PR: `gh pr create --title "Feature name"`
-5. After merge: `git checkout main && git pull`
-
-**Protected main:** Never commit directly to main (except docs)
-
----
-
 ## Success Criteria
 
 **You're doing well if:**
@@ -254,10 +201,22 @@ git commit -m "Clear description"
 
 ## Key Files to Know
 
-- `index.html` (123KB) - Main HTML file (with embedded data currently)
-- `graph.js` (44KB) - JavaScript logic (not loading yet - needs fix)
-- `tests/test_load.py` - Playwright test
-- `/helpful/` - Working reference code from parent project
+**Core Code:**
+- `index.html` (21KB) - Main HTML file with Sheets API integration
+- `graph.js` (46KB) - JavaScript logic with all UI features
+
+**Documentation:**
+- `HANDOFF_SUMMARY.txt` - Current project state (READ FIRST)
+- `DEVELOPMENT.md` - Developer guide with workflow rules
+- `NEXT_STEPS.md` - Completed work + future roadmap
+- `SHEET_ANALYSIS_V2.md` - Next feature design (user tracking + personal sheets)
+- `TESTING.md` - Testing workflow
+
+**Tests:**
+- `tests/*.py` - 12 Playwright tests
+
+**Obsolete:**
+- `obsolete/` - Old docs and reference code (moved for cleanup)
 
 ---
 
