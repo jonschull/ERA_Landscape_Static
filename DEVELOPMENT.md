@@ -1,10 +1,30 @@
 # Development Guide
 
+## ⚠️ WORKFLOW REQUIREMENT
+
+**ALWAYS use branch-based workflow. NEVER push directly to main.**
+
+```bash
+# For features:
+git checkout -b feat/feature-name
+
+# For fixes:
+git checkout -b fix/bug-description
+
+# After changes:
+git push origin <branch-name>
+gh pr create  # or create PR on GitHub
+```
+
+**Only merge to main through PR after review.**
+
+---
+
 ## Overview
 
 This is a **static HTML project** (20KB file, ~350+ nodes auto-loaded from Google Sheets). No build tools, no bundlers, no compilation.
 
-**Edit → Save → Test with HTTP server → Push to GitHub → Auto-deploys**
+**Edit → Save → Test with HTTP server → Push to branch → Create PR → Merge → Auto-deploys**
 
 **Critical:** Must use HTTP/HTTPS (not `file://`) - Google Sheets API requirement.
 
