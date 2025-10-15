@@ -769,6 +769,7 @@
         console.log('[QE] Enter detected, calling doAdd');
         e.preventDefault();
         doAdd();
+        clearHighlights();  // Clear yellow borders after adding
       }
     }
     qeFrom.addEventListener('keydown', handleEnterKey);
@@ -795,7 +796,10 @@
     }
     
     function highlightNode(label, inputElement) {
+      // Clear previous highlights
       clearHighlights();
+      
+      // If empty, just return (highlights cleared)
       if (!label || label.trim().length === 0) return;
       
       const all = nodes.get();
@@ -803,6 +807,7 @@
         String(n.label).trim().toLowerCase() === String(label).trim().toLowerCase()
       );
       
+      // Only highlight if exactly one match
       if (matches.length === 1) {
         const node = matches[0];
         const nodeId = node.id;
@@ -815,15 +820,20 @@
           }
         });
         highlightedNodes.push(nodeId);
+        console.log(`[QE] Highlighted node: ${node.label}`);
       }
     }
     
     qeFrom.addEventListener('input', (e) => highlightNode(e.target.value, qeFrom));
     qeTo.addEventListener('input', (e) => highlightNode(e.target.value, qeTo));
-    qeFrom.addEventListener('blur', clearHighlights);
-    qeTo.addEventListener('blur', clearHighlights);
+    // Don't clear on blur - keep highlights visible until user changes input
+    // qeFrom.addEventListener('blur', clearHighlights);
+    // qeTo.addEventListener('blur', clearHighlights);
 
-    qeAdd.onclick = doAdd;
+    qeAdd.onclick = () => {
+      doAdd();
+      clearHighlights();  // Clear yellow borders after adding
+    };
     qeRemove.onclick = doRemove;
     qeSaveTop.onclick = doSave;
     qeUndo.onclick = doUndo;
