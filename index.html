@@ -407,6 +407,43 @@
         updated_at: e.updated_at || ''
       }));
       
+      // Auto-heal: Create missing nodes referenced by edges
+      const nodeIds = new Set(nodesPayload.map(n => n.id));
+      const missingNodes = new Set();
+      
+      edgesPayload.forEach(edge => {
+        if (!nodeIds.has(edge.from)) missingNodes.add(edge.from);
+        if (!nodeIds.has(edge.to)) missingNodes.add(edge.to);
+      });
+      
+      if (missingNodes.size > 0) {
+        console.warn(`🔧 Auto-healing ${missingNodes.size} missing node(s):`);
+        missingNodes.forEach(id => {
+          const type = parseTypeFromId(id);
+          const visuals = getNodeVisuals(type);
+          const label = id.replace(/^(person|org|project)::/, ''); // Strip prefix for display
+          const healedNode = {
+            id: id,
+            label: label,
+            title: `${label}\n(auto-created from edge reference)`,
+            group: type,
+            type: type,
+            shape: visuals.shape,
+            color: visuals.color,
+            url: '',
+            notes: '',
+            member: '',
+            origin: 'auto-healed',
+            hidden: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          nodesPayload.push(healedNode);
+          console.warn(`  → Created: ${id}`);
+        });
+        showToast(`🔧 Auto-created ${missingNodes.size} missing node(s)`);
+      }
+      
       nodes.clear();
       edges.clear();
       nodes.add(nodesPayload);
