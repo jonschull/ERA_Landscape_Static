@@ -419,9 +419,10 @@
         connectionCount[edge.to] = (connectionCount[edge.to] || 0) + 1;
       });
       
+      // Update nodes with scaling value while preserving all other properties
       const updates = nodesPayload.map(node => ({
-        id: node.id,
-        value: connectionCount[node.id] || 1  // vis.js uses 'value' for scaling
+        ...node,  // Keep all existing properties including color
+        value: connectionCount[node.id] || 1  // Add scaling value
       }));
       nodes.update(updates);
       
