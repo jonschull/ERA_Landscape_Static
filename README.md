@@ -1,6 +1,6 @@
 # ERA Landscape - Static Viewer
 
-**Live Demo**: https://jonschull.github.io/ERA_Landscape_Static/ *(coming soon)*
+**Live Demo**: https://jonschull.github.io/ERA_Landscape_Static/
 
 Interactive graph visualization for the climate/restoration landscape. Pure HTML/JavaScript, no server required.
 
