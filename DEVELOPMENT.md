@@ -304,10 +304,10 @@ Watch API calls:
 
 **Sections:**
 - Graph initialization (vis-network setup with empty DataSets)
-- Toolbar logic (buttons, filters, counts)
+- Toolbar logic (buttons, filters)
 - Quick Editor (add/remove connections)
 - Event handlers (node clicks, double-clicks)
-- Utility functions (updateCounts, etc.)
+- Utility functions
 
 **Note:** Google Sheets functions are in `index.html` inline script
 

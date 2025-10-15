@@ -412,6 +412,21 @@
       nodes.add(nodesPayload);
       edges.add(edgesPayload);
       
+      // Scale nodes by connection count
+      const connectionCount = {};
+      edgesPayload.forEach(edge => {
+        connectionCount[edge.from] = (connectionCount[edge.from] || 0) + 1;
+        connectionCount[edge.to] = (connectionCount[edge.to] || 0) + 1;
+      });
+      
+      const updates = nodesPayload.map(node => ({
+        id: node.id,
+        value: connectionCount[node.id] || 1  // vis.js uses 'value' for scaling
+      }));
+      nodes.update(updates);
+      
+      console.log(`📊 Scaled nodes by connections (min: ${Math.min(...Object.values(connectionCount))}, max: ${Math.max(...Object.values(connectionCount))})`);
+      
       showToast('✅ Loaded from Sheets');
       hideLoading();
       return { nodes: nodesPayload, edges: edgesPayload };
