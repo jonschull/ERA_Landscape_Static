@@ -37,18 +37,13 @@
 <div id="network"></div>
 <div id="loading"><div class="panel"><div class="title">Loading graph…</div><div class="sub"><span id="pct">0</span>% • est <span id="eta">—</span> sec</div></div></div>
 <div id="toolbar">
-  <button id="fitBtn">Fit</button>
-  <button id="seedBtn">Highlight Seed</button>
-  <button id="discBtn">Highlight Discovered</button>
-  <button id="resetBtn">Reset</button>
-  <button id="qeSaveTop" style="margin-left:8px; font-weight:600;">Save Edit</button>
+  <button id="fitBtn" title="Zoom to show all nodes">Fit</button>
+  <button id="qeSaveTop" style="margin-left:8px; font-weight:600;" title="Save pending edits to Google Sheet">Save Edit</button>
   <span id="unsavedBadge" style="display:none; margin-left:6px; color:#c00; font-weight:600;">• unsaved edit</span>
   
-  <button id="refreshBtn" style="margin-left:8px;">↻ Refresh</button>
-  <button id="signInBtn" onclick="handleSignIn()" style="margin-left:8px;">🔐 Sign In</button>
+  <button id="refreshBtn" style="margin-left:8px;" title="Reload data from Google Sheet (discards unsaved edits)">↻ Re-Load</button>
+  <button id="signInBtn" onclick="handleSignIn()" style="margin-left:8px;" title="Sign in with Google to enable editing">🔐 Sign In</button>
   <a href="https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit" target="_blank" rel="noopener" style="margin-left:8px; font-size:12px; color:#1a73e8; text-decoration:none;">→ gSheet</a>
-  
-  <div id="counts" style="font-size:12px;color:#666;margin-top:4px;"></div>
 </div>
 <div id="toolbar" style="position: fixed; top: 80px; left: 10px; background: rgba(255,255,255,0.9); padding: 8px 12px; border-radius: 10px; font-family: sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000;">
   <div id="quickEditor" style="margin-top:0; font-size:12px;">
@@ -222,6 +217,13 @@
         // Auto-load data from Sheets on page init
         loadDataFromSheets().then(() => {
           console.log('🎉 Initial data load complete');
+          // Fit graph after a delay to allow physics to settle
+          if (window.network) {
+            setTimeout(() => {
+              window.network.fit({ animation: { duration: 1000 } });
+              console.log('🎯 Graph fitted to show all nodes');
+            }, 2000);
+          }
         }).catch(err => {
           console.error('Failed to load initial data:', err);
         });

@@ -19,33 +19,12 @@
     }
   };
   const network = new vis.Network(container, data, options);
+  // Make network globally accessible for fit after data load
+  window.network = network;
   // Testing hooks (for automation)
   window.__graph = { nodes, edges, candidatesByOrgId };
   // Toolbar logic
-  function updateCounts() {
-    const all = nodes.get();
-    const c = { seed:0, import:0, discovered:0 };
-    for (const n of all) { if (n.group==='organization' && n.origin) { if (c[n.origin]!==undefined) c[n.origin]++; } }
-    const el = document.getElementById('counts');
-    el.textContent = `seed: ${c.seed} • import: ${c.import} • discovered: ${c.discovered}`;
-  }
-  updateCounts();
-  function highlightOrigin(orig) {
-    const all = nodes.get();
-    const updates = [];
-    for (const n of all) {
-      if (n.group==='organization') {
-        const b = { ...n.color };
-        if (n.origin === orig) { b.borderWidth = 3; } else { b.borderWidth = 1; }
-        updates.push({ id: n.id, color: b });
-      }
-    }
-    nodes.update(updates);
-  }
   document.getElementById('fitBtn').onclick = () => network.fit({ animation: true });
-  document.getElementById('seedBtn').onclick = () => highlightOrigin('seed');
-  document.getElementById('discBtn').onclick = () => highlightOrigin('discovered');
-  document.getElementById('resetBtn').onclick = () => { network.setOptions({}); network.redraw(); updateCounts(); };
   // Simple org-like tester in JS (mirrors Python loosely)
   function jsLooksLikeOrgName(txt){
     if(!txt) return false; const t=txt.trim(); if(t.length<2 || t.length>120) return false; const low=t.toLowerCase();
@@ -978,28 +957,58 @@
     }
   });
 
-  // Refresh data from server (reads from Sheet or CSV)
+  // Re-Load data from server (reads from Sheet or CSV)
   const refreshBtn = document.getElementById('refreshBtn');
   if (refreshBtn) {
-    console.log('[Refresh] Attaching onclick handler to refresh button');
+    console.log('[Re-Load] Attaching onclick handler to re-load button');
     refreshBtn.onclick = async function() {
+      // Guardrail: Check for unsaved changes
+      if (hasUnsaved && pendingOps.length > 0) {
+        const proceed = confirm(
+          `You have ${pendingOps.length} unsaved change(s).\n\n` +
+          `Re-Loading will discard these changes.\n\n` +
+          `Do you want to save first?\n\n` +
+          `• Click "OK" to SAVE and then re-load\n` +
+          `• Click "Cancel" to re-load WITHOUT saving (changes will be lost)`
+        );
+        
+        if (proceed) {
+          // User wants to save first
+          showToast('Please save your changes, then re-load');
+          return;
+        }
+        // User chose to discard changes - continue with re-load
+      }
+      
       refreshBtn.disabled = true;
-      refreshBtn.textContent = '↻ Refreshing...';
+      refreshBtn.textContent = '↻ Re-Loading...';
       
       try {
         // Call Sheets API function (defined in index.html)
         if (typeof loadDataFromSheets === 'function') {
           await loadDataFromSheets();
-          updateCounts();
+          
+          // Clear unsaved state since we reloaded from source
+          pendingOps.length = 0;
+          hasUnsaved = false;
+          updateUnsaved();
+          
+          // Fit graph to show all nodes after re-load
+          if (window.network) {
+            setTimeout(() => {
+              window.network.fit({ animation: { duration: 1000 } });
+              console.log('🎯 Graph fitted after re-load');
+            }, 500);
+          }
         } else {
           showToast('⚠️ Sheets API not initialized');
         }
       } catch (err) {
-        console.error('Refresh error:', err);
-        showToast('Refresh failed: ' + err.message);
+        console.error('Re-Load error:', err);
+        showToast('Re-Load failed: ' + err.message);
       } finally {
         refreshBtn.disabled = false;
-        refreshBtn.textContent = '↻ Refresh';
+        refreshBtn.textContent = '↻ Re-Load';
       }
     };
   }
