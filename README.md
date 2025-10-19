@@ -114,12 +114,7 @@ const CLIENT_ID = '57881875374-flipnf45tc25cq7emcr9qhvq7unk16n5.apps.googleuserc
 - **OAuth App Name**: ERA Graph Browser Client
 - **Google Cloud Account**: fathomizer@ecorestorationalliance.com
 - **Console**: https://console.cloud.google.com/apis/credentials?project=57881875374
-- **Status**: Testing mode (limited to approved test users)
-
-**To enable public access:**
-1. Sign in to Google Cloud Console with fathomizer@ecorestorationalliance.com
-2. Navigate to OAuth consent screen
-3. Publish app to production (requires verification for sensitive scopes)
+- **Status**: ✅ In production (anyone with Google account can sign in)
 
 **To use your own Sheet:**
 1. Copy the Google Sheet
