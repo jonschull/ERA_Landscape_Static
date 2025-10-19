@@ -258,6 +258,9 @@ Google Sheet:
 API Credentials (embedded in index.html):
   API Key: AIzaSyBp23GwrTURmM3Z1ERZocotnu3Tn96TmUo
   OAuth Client ID: 57881875374-flipnf45tc25cq7emcr9qhvq7unk16n5.apps.googleusercontent.com
+  OAuth App Name: ERA Graph Browser Client
+  Google Cloud Account: fathomizer@ecorestorationalliance.com
+  Google Cloud Console: https://console.cloud.google.com/apis/credentials?project=57881875374
 
 HOW TO HAND OFF
 ---------------
