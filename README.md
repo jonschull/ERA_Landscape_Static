@@ -110,7 +110,13 @@ const API_KEY = 'AIzaSyBp23GwrTURmM3Z1ERZocotnu3Tn96TmUo';
 const CLIENT_ID = '57881875374-flipnf45tc25cq7emcr9qhvq7unk16n5.apps.googleusercontent.com';
 ```
 
-**Current OAuth Configuration:**
+**Google Sheet Configuration:**
+- **Sheet URL**: https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit
+- **Sheet Owner**: jschull@gmail.com
+- **Access Policy**: Write access granted to trusted users only
+- **Note**: Sheet URL not shared with end users (not ready for public editing)
+
+**OAuth Configuration:**
 - **OAuth App Name**: ERA Graph Browser Client
 - **Google Cloud Account**: fathomizer@ecorestorationalliance.com
 - **Console**: https://console.cloud.google.com/apis/credentials?project=57881875374

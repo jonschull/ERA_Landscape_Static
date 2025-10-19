@@ -253,7 +253,10 @@ AI Assistant: Claude (Anthropic) via Windsurf Cascade
 
 Google Sheet: 
   ID: 1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY
-  Link: https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit
+  URL: https://docs.google.com/spreadsheets/d/1cR5X2xFSGffivfsMjyHDDeDJQv6R0kQpVUJsEJ2_1yY/edit
+  Owner: jschull@gmail.com
+  Access Policy: Write access granted to trusted users only
+  Note: Sheet URL not shared with end users (not ready for public editing)
 
 API Credentials (embedded in index.html):
   API Key: AIzaSyBp23GwrTURmM3Z1ERZocotnu3Tn96TmUo

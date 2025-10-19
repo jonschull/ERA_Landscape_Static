@@ -50,38 +50,43 @@ Create a **movement-wide utility** for collaborative network mapping where:
 
 ## Architecture Evolution
 
-### Phase 1: Static Viewer (Current - October 2025)
+### Phase 1: Static Viewer ✅ COMPLETED (October 2025)
 
 **Goal:** Get the viewer working without a server
 
 **Features:**
-- Pure HTML/JavaScript (no backend)
-- Loads from single global Google Sheet
-- View-only (or edit with sign-in)
-- Deployable to GitHub Pages
+- ✅ Pure HTML/JavaScript (no backend)
+- ✅ Loads from single global Google Sheet
+- ✅ Interactive graph visualization
+- ✅ Deployed to GitHub Pages
 
-**Status:** In progress (this project)
+**Status:** Complete and deployed
 
-**Timeline:** 2-4 hours (immediate next work session)
+**Completed:** October 15, 2025
+
+**URL:** https://jonschull.github.io/ERA_Landscape_Static/
 
 ---
 
-### Phase 2: OAuth Editing (Next - November 2025)
+### Phase 2: OAuth Editing ✅ COMPLETED (October 2025)
 
 **Goal:** Enable users to contribute to shared database
 
 **Features:**
-- "Sign In" button (Google OAuth)
-- Add/edit nodes and edges
-- Save changes back to global Sheet
-- Attribution (track who added what)
+- ✅ "Sign In" button (Google OAuth)
+- ✅ Add/edit nodes and edges
+- ✅ Save changes back to global Sheet
+- ✅ OAuth app published to production (anyone can sign in)
 
 **Technical:**
-- Google Identity Services (OAuth 2.0)
-- Sheets API write permission
-- User permission checking
+- ✅ Google Identity Services (OAuth 2.0)
+- ✅ Sheets API write permission
+- ✅ OAuth Client: ERA Graph Browser Client
+- ✅ Status: In production (public access enabled)
 
-**Timeline:** 4-6 hours (once Phase 1 deployed)
+**Completed:** October 19, 2025
+
+**Note:** Attribution tracking (created_by, updated_by) planned for Phase 3
 
 ---
 
@@ -349,18 +354,18 @@ Plus: private column (boolean: false = public/merged, true = private/excluded)
 
 ## Success Metrics
 
-### Phase 1 Success (Static Viewer)
+### Phase 1 Success (Static Viewer) ✅ ACHIEVED
 - ✅ Deploys to GitHub Pages
 - ✅ Loads data from Google Sheets
 - ✅ No console errors
 - ✅ Graph displays and works
 - ✅ 5+ users can access and view
 
-### Phase 2 Success (OAuth Editing)
-- ✅ Users can sign in
+### Phase 2 Success (OAuth Editing) ✅ ACHIEVED
+- ✅ Users can sign in (OAuth in production)
 - ✅ Users can add/edit nodes and edges
 - ✅ Changes save to global Sheet
-- ✅ 10+ users contributing data
+- ⏳ 10+ users contributing data (pending user adoption)
 
 ### Phase 3 Success (Personal Sheets)
 - ✅ Users have personal sheets
